@@ -53,7 +53,7 @@ export function MissionControlInterface() {
         model_preference: agents[0]?.model_preference || 'gemini-2.5-flash',
         execution_environment: {
           type: 'git',
-          repo_url: 'https://github.com/user/repo.git',
+          repo_url: 'https://github.com/sidkid78/agentic.git',
           branch: 'main'
         }
       });
