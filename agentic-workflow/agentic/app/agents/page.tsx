@@ -33,7 +33,7 @@ const mockAgents = [
     agent_id: 'agent-2',
     name: 'Test-Writer',
     status: 'SUCCESS' as const,
-    model_preference: 'gemini-2.0-pro',
+    model_preference: 'gemini-2.5-flash',
     specialization: ['testing', 'unit-tests', 'integration-tests'],
     current_task: null,
     created_at: new Date(Date.now() - 172800000).toISOString(),

@@ -2331,7 +2331,7 @@ export const navigationItems: NavItem[] = [
 
 // Main Page Data
 export const subAgentData = {
-  title: "Claude Code Sub-Agents: An Interactive Explainer",
+  title: "Gemini Code Sub-Agents: An Interactive Explainer",
   intro: [
     "A deep dive into the core component of the agentic architecture, enabling engineers to scale compute and accomplish complex engineering tasks.",
   ],
@@ -2340,13 +2340,13 @@ export const subAgentData = {
       id: "how-it-works",
       title: "How Sub-Agents Work",
       content: [
-        "The operational flow of Claude Code Sub-Agents involves a clear hierarchy and communication structure. The following visualization demonstrates this five-step process, from user prompt to final output.",
+        "The operational flow of Gemini Code Sub-Agents involves a clear hierarchy and communication structure. The following visualization demonstrates this five-step process, from user prompt to final output.",
       ],
       subsections: [
         {
           id: "user-prompt",
           title: "1. User Prompt",
-          content: ["The process begins with you, the user, providing a prompt to your primary Claude Code agent."],
+          content: ["The process begins with you, the user, providing a prompt to your primary Gemini Code agent."],
         },
         {
           id: "delegation",
@@ -2784,7 +2784,7 @@ export default function Home() {
           </Sheet>
         </div>
         <h1 className="flex-1 text-xl font-semibold tracking-tight">
-          Claude Code Sub-Agents
+          Gemini Code Sub-Agents
         </h1>
         <ThemeToggle />
       </header>
@@ -4263,7 +4263,7 @@ export default function Home() {
           </Sheet>
         </div>
         <h1 className="flex-1 text-xl font-semibold tracking-tight">
-          Claude Code Sub-Agents
+          Gemini Code Sub-Agents
         </h1>
         <ThemeToggle />
       </header>

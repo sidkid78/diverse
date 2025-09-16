@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Gemini 2&period;5 Pro</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h2 id="gemini-25-pro">Gemini 2.5 Pro</h2>
+<p>Try it in Google AI Studio</p>
+<p>Our state-of-the-art multipurpose model, which excels at coding and complex reasoning tasks.</p>
+<h3 id="standard">Standard</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Free of charge</td>
+<td>$1.25, prompts &lt;= 200k tokens<br>$2.50, prompts &gt; 200k tokens</td>
+</tr>
+<tr>
+<td>Output price (including thinking tokens)</td>
+<td>Free of charge</td>
+<td>$10.00, prompts &lt;= 200k tokens<br>$15.00, prompts &gt; 200k</td>
+</tr>
+<tr>
+<td>Context caching price</td>
+<td>Not available</td>
+<td>$0.31, prompts &lt;= 200k tokens<br>$0.625, prompts &gt; 200k<br>$4.50 / 1,000,000 tokens per hour (storage price)</td>
+</tr>
+<tr>
+<td>Grounding with Google Search</td>
+<td>Not available</td>
+<td>1,500 RPD (free), then $35 / 1,000 requests</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="batch">Batch</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Free of charge</td>
+<td>$1.25, prompts &lt;= 200k tokens<br>$2.50, prompts &gt; 200k tokens</td>
+</tr>
+<tr>
+<td>Output price (including thinking tokens)</td>
+<td>Free of charge</td>
+<td>$10.00, prompts &lt;= 200k tokens<br>$15.00, prompts &gt; 200k</td>
+</tr>
+<tr>
+<td>Context caching price</td>
+<td>Not available</td>
+<td>$0.31, prompts &lt;= 200k tokens<br>$0.625, prompts &gt; 200k<br>$4.50 / 1,000,000 tokens per hour (storage price)</td>
+</tr>
+<tr>
+<td>Grounding with Google Search</td>
+<td>Not available</td>
+<td>1,500 RPD (free), then $35 / 1,000 requests</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gemini-25-flash">Gemini 2.5 Flash</h2>
+<p>Try it in Google AI Studio</p>
+<p>Our first hybrid reasoning model which supports a 1M token context window and has thinking budgets.</p>
+<h3 id="standard-1">Standard</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Free of charge</td>
+<td>$0.30 (text / image / video)<br>$1.00 (audio)</td>
+</tr>
+<tr>
+<td>Output price (including thinking tokens)</td>
+<td>Free of charge</td>
+<td>$2.50</td>
+</tr>
+<tr>
+<td>Context caching price</td>
+<td>Not available</td>
+<td>$0.075 (text / image / video)<br>$0.25 (audio)<br>$1.00 / 1,000,000 tokens per hour (storage price)</td>
+</tr>
+<tr>
+<td>Grounding with Google Search</td>
+<td>Free of charge, up to 500 RPD (limit shared with Flash-Lite RPD)</td>
+<td>1,500 RPD (free, limit shared with Flash-Lite RPD), then $35 / 1,000 requests</td>
+</tr>
+<tr>
+<td>Live API</td>
+<td>Free of charge</td>
+<td>Input: $0.50 (text), $3.00 (audio / image [video])<br>Output: $2.00 (text), $12.00 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="batch-1">Batch</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Free of charge</td>
+<td>$0.30 (text / image / video)<br>$1.00 (audio)</td>
+</tr>
+<tr>
+<td>Output price (including thinking tokens)</td>
+<td>Free of charge</td>
+<td>$2.50</td>
+</tr>
+<tr>
+<td>Context caching price</td>
+<td>Not available</td>
+<td>$0.075 (text / image / video)<br>$0.25 (audio)<br>$1.00 / 1,000,000 tokens per hour (storage price)</td>
+</tr>
+<tr>
+<td>Grounding with Google Search</td>
+<td>Free of charge, up to 500 RPD (limit shared with Flash-Lite RPD)</td>
+<td>1,500 RPD (free, limit shared with Flash-Lite RPD), then $35 / 1,000 requests</td>
+</tr>
+<tr>
+<td>Live API</td>
+<td>Free of charge</td>
+<td>Input: $0.50 (text), $3.00 (audio / image [video])<br>Output: $2.00 (text), $12.00 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gemini-25-flash-lite">Gemini 2.5 Flash-Lite</h2>
+<p>Try it in Google AI Studio</p>
+<p>Our smallest and most cost effective model, built for at scale usage.</p>
+<h3 id="standard-2">Standard</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price (text, image, video)</td>
+<td>Free of charge</td>
+<td>$0.10 (text / image / video)<br>$0.30 (audio)</td>
+</tr>
+<tr>
+<td>Output price (including thinking tokens)</td>
+<td>Free of charge</td>
+<td>$0.40</td>
+</tr>
+<tr>
+<td>Context caching price</td>
+<td>Not available</td>
+<td>$0.025 (text / image / video)<br>$0.125 (audio)<br>$1.00 / 1,000,000 tokens per hour (storage price)</td>
+</tr>
+<tr>
+<td>Grounding with Google Search</td>
+<td>Free of charge, up to 500 RPD (limit shared with Flash RPD)</td>
+<td>1,500 RPD (free, limit shared with Flash RPD), then $35 / 1,000 requests</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="batch-2">Batch</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price (text, image, video)</td>
+<td>Free of charge</td>
+<td>$0.10 (text / image / video)<br>$0.30 (audio)</td>
+</tr>
+<tr>
+<td>Output price (including thinking tokens)</td>
+<td>Free of charge</td>
+<td>$0.40</td>
+</tr>
+<tr>
+<td>Context caching price</td>
+<td>Not available</td>
+<td>$0.025 (text / image / video)<br>$0.125 (audio)<br>$1.00 / 1,000,000 tokens per hour (storage price)</td>
+</tr>
+<tr>
+<td>Grounding with Google Search</td>
+<td>Free of charge, up to 500 RPD (limit shared with Flash RPD)</td>
+<td>1,500 RPD (free, limit shared with Flash RPD), then $35 / 1,000 requests</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gemini-25-flash-native-audio">Gemini 2.5 Flash Native Audio</h2>
+<p>Try it in Google AI Studio</p>
+<p>Our native audio models optimized for higher quality audio outputs with better pacing, voice naturalness, verbosity, and mood.</p>
+<p>Preview models may change before becoming stable and have more restrictive rate limits.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Not available</td>
+<td>$0.50 (text)<br>$3.00 (audio / video)</td>
+</tr>
+<tr>
+<td>Output price (including thinking tokens)</td>
+<td>Not available</td>
+<td>$2.00 (text)<br>$12.00 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gemini-25-flash-image-preview">Gemini 2.5 Flash Image Preview</h2>
+<p>Try it in Google AI Studio</p>
+<p>Our native image generation model, optimized for speed, flexibility, and contextual understanding.</p>
+<p>Preview models may change before becoming stable and have more restrictive rate limits.</p>
+<h3 id="standard-3">Standard</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Not available</td>
+<td>$0.30 (text / image)</td>
+</tr>
+<tr>
+<td>Output price</td>
+<td>Not available</td>
+<td>$0.039 per image*</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="batch-3">Batch</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Not available</td>
+<td>$0.30 (text / image)</td>
+</tr>
+<tr>
+<td>Output price</td>
+<td>Not available</td>
+<td>$0.039 per image*</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>[*] Image output is priced at $30 per 1,000,000 tokens. Output images up to 1024x1024px consume 1290 tokens and are equivalent to $0.039 per image.</p>
+<h2 id="gemini-25-flash-preview-tts">Gemini 2.5 Flash Preview TTS</h2>
+<p>Try it in Google AI Studio</p>
+<p>Our 2.5 Flash text-to-speech audio model optimized for price-performant, low-latency, controllable speech generation.</p>
+<p>Preview models may change before becoming stable and have more restrictive rate limits.</p>
+<h3 id="standard-4">Standard</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Free of charge</td>
+<td>$0.50 (text)</td>
+</tr>
+<tr>
+<td>Output price</td>
+<td>Free of charge</td>
+<td>$10.00 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="batch-4">Batch</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Free of charge</td>
+<td>$0.50 (text)</td>
+</tr>
+<tr>
+<td>Output price</td>
+<td>Free of charge</td>
+<td>$10.00 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gemini-25-pro-preview-tts">Gemini 2.5 Pro Preview TTS</h2>
+<p>Try it in Google AI Studio</p>
+<p>Our 2.5 Pro text-to-speech audio model optimized for powerful, low-latency speech generation for more natural outputs and easier to steer prompts.</p>
+<p>Preview models may change before becoming stable and have more restrictive rate limits.</p>
+<h3 id="standard-5">Standard</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Not available</td>
+<td>$1.00 (text)</td>
+</tr>
+<tr>
+<td>Output price</td>
+<td>Not available</td>
+<td>$20.00 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="batch-5">Batch</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Not available</td>
+<td>$1.00 (text)</td>
+</tr>
+<tr>
+<td>Output price</td>
+<td>Not available</td>
+<td>$20.00 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gemini-20-flash">Gemini 2.0 Flash</h2>
+<p>Try it in Google AI Studio</p>
+<p>Our most balanced multimodal model with great performance across all tasks, with a 1 million token context window, and built for the era of Agents.</p>
+<h3 id="standard-6">Standard</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Free of charge</td>
+<td>$0.10 (text / image / video)<br>$0.70 (audio)</td>
+</tr>
+<tr>
+<td>Output price</td>
+<td>Free of charge</td>
+<td>$0.40</td>
+</tr>
+<tr>
+<td>Context caching price</td>
+<td>Free of charge</td>
+<td>$0.025 / 1,000,000 tokens (text/image/video)<br>$0.175 / 1,000,000 tokens (audio)</td>
+</tr>
+<tr>
+<td>Context caching (storage)</td>
+<td>Not available</td>
+<td>$1.00 / 1,000,000 tokens per hour</td>
+</tr>
+<tr>
+<td>Image generation pricing</td>
+<td>Free of charge</td>
+<td>$0.039 per image*</td>
+</tr>
+<tr>
+<td>Tuning price</td>
+<td>Not available</td>
+<td>Not available</td>
+</tr>
+<tr>
+<td>Grounding with Google Search</td>
+<td>Free of charge, up to 500 RPD</td>
+<td>1,500 RPD (free), then $35 / 1,000 requests</td>
+</tr>
+<tr>
+<td>Live API</td>
+<td>Free of charge</td>
+<td>Input: $0.35 (text), $2.10 (audio / image [video])<br>Output: $1.50 (text), $8.50 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="batch-6">Batch</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free Tier</th>
+<th>Paid Tier, per 1M tokens in USD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input price</td>
+<td>Free of charge</td>
+<td>$0.10 (text / image / video)<br>$0.70 (audio)</td>
+</tr>
+<tr>
+<td>Output price</td>
+<td>Free of charge</td>
+<td>$0.40</td>
+</tr>
+<tr>
+<td>Context caching price</td>
+<td>Free of charge</td>
+<td>$0.025 / 1,000,000 tokens (text/image/video)<br>$0.175 / 1,000,000 tokens (audio)</td>
+</tr>
+<tr>
+<td>Context caching (storage)</td>
+<td>Not available</td>
+<td>$1.00 / 1,000,000 tokens per hour</td>
+</tr>
+<tr>
+<td>Image generation pricing</td>
+<td>Free of charge</td>
+<td>$0.039 per image*</td>
+</tr>
+<tr>
+<td>Tuning price</td>
+<td>Not available</td>
+<td>Not available</td>
+</tr>
+<tr>
+<td>Grounding with Google Search</td>
+<td>Free of charge, up to 500 RPD</td>
+<td>1,500 RPD (free), then $35 / 1,000 requests</td>
+</tr>
+<tr>
+<td>Live API</td>
+<td>Free of charge</td>
+<td>Input: $0.35 (text), $2.10 (audio / image [video])<br>Output: $1.50 (text), $8.50 (audio)</td>
+</tr>
+<tr>
+<td>Used to improve our products</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>[*] Image output is priced at $30 per 1,000,000 tokens. Output images up to 1024x1024px consume 1290 tokens and are equivalent to $0.039 per image.</p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

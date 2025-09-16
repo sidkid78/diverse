@@ -11,6 +11,13 @@ export interface Agent {
     finished_at?: string;
   }
   
+  export interface AgentConfig {
+    name: string;
+    model: 'gemini-2.5-pro' | 'gemini-2.5-flash' | 'gemini-2.0-pro';
+    specialization: string[];
+    system_prompt: string;
+  }
+
   export interface Plan {
     plan_id: string;
     user_id: string;
