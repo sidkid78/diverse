@@ -4,16 +4,16 @@ export interface Agent {
     parent_agent_id?: string;
     task_id: string;
     status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED';
-    model_preference: 'gemini-2.5-pro' | 'gemini-2.5-flash' | 'gemini-2.5-flash-lite';
+    model_preference: ModelPreference;
     name: string;
     specialization: string[];
     created_at: string;
     finished_at?: string;
   }
   
-  export interface AgentConfig {
+export interface AgentConfig {
     name: string;
-    model: 'gemini-2.5-pro' | 'gemini-2.5-flash' | 'gemini-2.5-flash-lite';
+    model: ModelPreference;
     specialization: string[];
     system_prompt: string;
   }
