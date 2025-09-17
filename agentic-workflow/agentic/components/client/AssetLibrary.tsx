@@ -15,7 +15,8 @@ import {
   Copy,
   Trash2,
   Eye,
-  Download
+  Download,
+  Archive
 } from 'lucide-react';
 import { formatTimestamp } from '@/lib/utils';
 
@@ -24,7 +25,7 @@ interface AssetLibraryProps {
   filterBy: 'all' | 'plans' | 'prompts' | 'docs';
   sortBy: 'recent' | 'name' | 'usage';
   viewMode: 'grid' | 'list';
-  onEditAsset: (asset: any) => void;
+  onEditAsset: (asset: unknown) => void;
 }
 
 // Mock data for assets
@@ -318,7 +319,7 @@ Make the documentation clear, complete, and developer-friendly.`,
 
 export function AssetLibrary({ searchQuery, filterBy, sortBy, viewMode, onEditAsset }: AssetLibraryProps) {
   // Filter assets based on search and filter criteria
-  let filteredAssets = mockAssets.filter(asset => {
+  const filteredAssets = mockAssets.filter(asset => {
     const matchesSearch = searchQuery === '' || 
       asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       asset.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -361,6 +362,11 @@ export function AssetLibrary({ searchQuery, filterBy, sortBy, viewMode, onEditAs
       case 'doc': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleView = (asset: any) => {
+    console.log('Viewing asset:', asset.name);
+    alert(`👁️ Viewing "${asset.name}"\n\nContent preview:\n${asset.content.substring(0, 200)}...`);
   };
 
   const handleDuplicate = (asset: any) => {
@@ -449,9 +455,12 @@ export function AssetLibrary({ searchQuery, filterBy, sortBy, viewMode, onEditAs
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <Button size="sm" onClick={() => onEditAsset(asset)}>
-                    <Edit className="w-3 h-3 mr-1" />
-                    Edit
+                  <Button size="sm" onClick={() => handleView(asset)}>
+                    <Eye className="w-3 h-3 mr-1" />
+                    View
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => onEditAsset(asset)}>
+                    <Edit className="w-3 h-3" />
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => handleDuplicate(asset)}>
                     <Copy className="w-3 h-3" />
@@ -503,9 +512,12 @@ export function AssetLibrary({ searchQuery, filterBy, sortBy, viewMode, onEditAs
                   </div>
                   
                   <div className="flex items-center gap-1">
-                    <Button size="sm" onClick={() => onEditAsset(asset)}>
-                      <Edit className="w-3 h-3 mr-1" />
-                      Edit
+                    <Button size="sm" onClick={() => handleView(asset)}>
+                      <Eye className="w-3 h-3 mr-1" />
+                      View
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => onEditAsset(asset)}>
+                      <Edit className="w-3 h-3" />
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => handleDuplicate(asset)}>
                       <Copy className="w-3 h-3" />

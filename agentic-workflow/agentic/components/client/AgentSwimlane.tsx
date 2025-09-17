@@ -24,6 +24,7 @@ interface AgentSwimlaneProps {
   onSelect: () => void;
   onSteer: () => void;
   isPaused: boolean;
+  onResume?: () => void;
 }
 
 export function AgentSwimlane({ 
@@ -32,7 +33,8 @@ export function AgentSwimlane({
   isSelected, 
   onSelect, 
   onSteer, 
-  isPaused 
+  isPaused,
+  onResume
 }: AgentSwimlaneProps) {
   const modelInfo = MODEL_OPTIONS[agent.model_preference!];
   const sortedEvents = [...events].sort((a, b) => 
@@ -83,7 +85,7 @@ export function AgentSwimlane({
           </div>
           
           <div className="flex items-center gap-1">
-            {agent.status === 'RUNNING' && (
+            {agent.status === 'RUNNING' && !isPaused && (
               <Button
                 size="sm"
                 variant="outline"
@@ -95,6 +97,21 @@ export function AgentSwimlane({
               >
                 <Settings className="w-3 h-3 mr-1" />
                 Steer
+              </Button>
+            )}
+            
+            {isPaused && onResume && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onResume();
+                }}
+                className="text-xs"
+              >
+                <Play className="w-3 h-3 mr-1" />
+                Resume
               </Button>
             )}
             

@@ -4,7 +4,7 @@ export interface Agent {
     parent_agent_id?: string;
     task_id: string;
     status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED';
-    model_preference: 'gemini-2.5-pro' | 'gemini-2.5-flash' | 'gemini-2.0-pro';
+    model_preference: 'gemini-2.5-pro' | 'gemini-2.5-flash' | 'gemini-2.5-flash-lite';
     name: string;
     specialization: string[];
     created_at: string;
@@ -13,7 +13,7 @@ export interface Agent {
   
   export interface AgentConfig {
     name: string;
-    model: 'gemini-2.5-pro' | 'gemini-2.5-flash' | 'gemini-2.0-pro';
+    model: 'gemini-2.5-pro' | 'gemini-2.5-flash' | 'gemini-2.5-flash-lite';
     specialization: string[];
     system_prompt: string;
   }
@@ -169,9 +169,15 @@ export interface Agent {
       icon: '🧠',
       cost_tier: 'high',
     },
+    'gemini-2.5-flash-lite': {
+      label: 'Gemini 2.5 Flash Lite',
+      description: 'Smallest, most cost effective model',
+      icon: '💡',
+      cost_tier: 'low',
+    },
     'gemini-2.0-pro': {
       label: 'Gemini 2.0 Pro (Speed)',
-      description: 'Fast and cost-effective for simple tasks',
+      description: 'Balanced multimodal with 1M context',
       icon: '⚡',
       cost_tier: 'low',
     },

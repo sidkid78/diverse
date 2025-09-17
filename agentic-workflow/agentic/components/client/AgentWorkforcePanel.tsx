@@ -72,13 +72,13 @@ export function AgentWorkforcePanel() {
     },
     {
       name: 'Test-Writer',
-      model_preference: 'gemini-2.0-pro' as ModelPreference,
+      model_preference: 'gemini-2.5-flash-lite' as ModelPreference,
       specialization: ['testing', 'unit-tests', 'integration-tests'],
       description: 'Creates comprehensive test suites'
     },
     {
       name: 'Doc-Generator',
-      model_preference: 'gemini-2.0-pro' as ModelPreference,
+      model_preference: 'gemini-2.5-pro' as ModelPreference,
       specialization: ['documentation', 'api-docs', 'readme'],
       description: 'Generates and maintains documentation'
     },

@@ -10,26 +10,65 @@ import {
     TaskVariant 
   } from '@/types';
   
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  // Safe base URL that defaults to Next.js API routes
+  const getAPIBaseURL = (): string => {
+    // In browser, always use relative paths to Next.js API routes
+    if (typeof window !== 'undefined') {
+      return '/api';
+    }
+    
+    // On server, use environment variable or default to localhost
+    return process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:3000/api';
+  };
   
   class APIClient {
+    private buildURL(endpoint: string): string {
+      const baseURL = getAPIBaseURL();
+      
+      // Ensure endpoint starts with /
+      const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+      
+      // Build URL defensively
+      try {
+        if (baseURL.startsWith('http')) {
+          return `${baseURL}${normalizedEndpoint}`;
+        } else {
+          // Relative URL for client-side requests
+          return `${baseURL}${normalizedEndpoint}`;
+        }
+      } catch (error) {
+        console.error('Failed to build API URL:', error);
+        throw new Error(`Failed to build API URL: baseURL="${baseURL}", endpoint="${endpoint}"`);
+      }
+    }
+
     private async request<T>(
       endpoint: string, 
       options: RequestInit = {}
     ): Promise<T> {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-        ...options,
-      });
+      const url = this.buildURL(endpoint);
+      
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...options.headers,
+          },
+          ...options,
+        });
   
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText} (URL: ${url})`);
+        }
+  
+        return response.json();
+      } catch (error) {
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          throw new Error(`Network error: Failed to fetch from ${url}. Check if the API server is running and CORS is configured.`);
+        }
+        throw error;
       }
-  
-      return response.json();
     }
   
     // Tasks
@@ -252,4 +291,4 @@ import {
       };
     }
   }
-  
+  export default APIClient;
