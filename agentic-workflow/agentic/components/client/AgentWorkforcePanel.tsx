@@ -1,5 +1,16 @@
 'use client';
 
+/**
+ * AgentWorkforcePanel is a React component that manages and displays a list of agents
+ * for a mission control workflow. It allows users to:
+ * - View, add, and remove agents.
+ * - Assign model preferences and specializations to each agent.
+ * - Quickly deploy preset agent configurations.
+ * - Edit agent specializations interactively.
+ * 
+ * The component uses a global mission control store for agent state management.
+ * UI elements are composed using custom Button, Input, Card, Badge, and ModelSelector components.
+ */
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

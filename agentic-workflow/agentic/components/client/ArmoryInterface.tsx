@@ -1,5 +1,12 @@
 'use client';
 
+/**
+ * ArmoryInterface is the main UI component for managing the user's asset library,
+ * including plans, prompts, and documentation. It provides search, filtering,
+ * sorting, and view mode controls, as well as interfaces for creating, editing,
+ * importing, and exporting assets. The component displays an overview of asset
+ * categories and renders the asset library and relevant modals.
+ */
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,6 +45,11 @@ interface Asset {
   isNew?: boolean;
 }
 
+/**
+ * Main component for the Armory asset management interface.
+ * Provides controls for searching, filtering, sorting, and viewing assets,
+ * as well as creating, editing, importing, and exporting them.
+ */
 export function ArmoryInterface() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -47,6 +59,7 @@ export function ArmoryInterface() {
   const [showImporter, setShowImporter] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
+  // Hardcoded asset counts for demonstration purposes
   const assetCounts = {
     plans: 12,
     prompts: 38,
@@ -54,20 +67,34 @@ export function ArmoryInterface() {
     total: 65
   };
 
+  /**
+   * Handler to initiate creation of a new asset of the given type.
+   * @param type - The type of asset to create ('plan', 'prompt', or 'doc')
+   */
   const handleCreateNew = (type: 'plan' | 'prompt' | 'doc') => {
     setSelectedAsset({ type, isNew: true });
     setShowEditor(true);
   };
 
+  /**
+   * Handler to initiate editing of an existing asset.
+   * @param asset - The asset to edit
+   */
   const handleEditAsset = (asset: Asset) => {
     setSelectedAsset(asset);
     setShowEditor(true);
   };
 
+  /**
+   * Handler to open the asset importer modal.
+   */
   const handleImportAssets = () => {
     setShowImporter(true);
   };
 
+  /**
+   * Handler to export assets (stub implementation).
+   */
   const handleExportAssets = () => {
     // In production, this would export selected assets
     alert('📦 Assets exported successfully!');

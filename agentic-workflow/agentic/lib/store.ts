@@ -1,3 +1,16 @@
+/**
+ * Zustand-based state management stores for the Agentic Workflow application.
+ *
+ * This module defines and exports several global stores:
+ * - useAuthStore: Handles authentication state (user info, login/logout).
+ * - useUIStore: Manages UI state (theme, sidebar, active agents).
+ * - useMissionControlStore: Manages mission planning, agents, and context.
+ * - useLiveOpsStore: Handles live operations (task, event stream, agent selection, pause).
+ * - useDebriefingStore: Manages debriefing state (task variants, selection).
+ *
+ * Each store provides state and actions for its domain, and some use persistence via zustand's middleware.
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { 
@@ -11,6 +24,9 @@ import {
   TaskVariant
 } from '@/types';
 
+/**
+ * Authentication state and actions.
+ */
 interface AuthState {
   user: {
     id: string;
@@ -22,6 +38,9 @@ interface AuthState {
   logout: () => void;
 }
 
+/**
+ * UI state and actions.
+ */
 interface UIState {
   theme: 'light' | 'dark';
   sidebarCollapsed: boolean;
@@ -31,6 +50,9 @@ interface UIState {
   setActiveAgents: (agents: Agent[]) => void;
 }
 
+/**
+ * Mission Control state and actions.
+ */
 interface MissionControlStore extends MissionControlState {
   updateGoal: (goal: string) => void;
   addPlanStep: (step: Omit<PlanStep, 'step_id' | 'order'>) => void;
@@ -47,6 +69,9 @@ interface MissionControlStore extends MissionControlState {
   reset: () => void;
 }
 
+/**
+ * Live Operations state and actions.
+ */
 interface LiveOpsStore extends LiveOpsState {
   setTask: (task: Task) => void;
   addEventLog: (event: EventLog) => void;
@@ -55,13 +80,18 @@ interface LiveOpsStore extends LiveOpsState {
   reset: () => void;
 }
 
+/**
+ * Debriefing state and actions.
+ */
 interface DebriefingStore extends DebriefingState {
   setVariants: (variants: TaskVariant[]) => void;
   setSelectedVariant: (variantId: string | undefined) => void;
   reset: () => void;
 }
 
-// Auth Store
+/**
+ * Auth Store: Handles user authentication state.
+ */
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -76,7 +106,9 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-// UI Store
+/**
+ * UI Store: Manages UI preferences and state.
+ */
 export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
@@ -93,7 +125,9 @@ export const useUIStore = create<UIState>()(
   )
 );
 
-// Mission Control Store
+/**
+ * Mission Control Store: Handles mission planning, agents, and context.
+ */
 export const useMissionControlStore = create<MissionControlStore>((set, get) => ({
   goal: '',
   plan: [],
@@ -183,7 +217,9 @@ export const useMissionControlStore = create<MissionControlStore>((set, get) => 
   }),
 }));
 
-// Live Ops Store
+/**
+ * Live Ops Store: Handles live task execution and event stream.
+ */
 export const useLiveOpsStore = create<LiveOpsStore>((set, get) => ({
   task: {} as Task,
   eventStream: [],
@@ -208,7 +244,9 @@ export const useLiveOpsStore = create<LiveOpsStore>((set, get) => ({
   }),
 }));
 
-// Debriefing Store
+/**
+ * Debriefing Store: Handles task variant selection and debriefing state.
+ */
 export const useDebriefingStore = create<DebriefingStore>((set) => ({
   variants: [],
   selectedVariant: undefined,

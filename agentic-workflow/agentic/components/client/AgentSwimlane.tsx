@@ -27,6 +27,24 @@ interface AgentSwimlaneProps {
   onResume?: () => void;
 }
 
+/**
+ * AgentSwimlane displays a visual summary of an agent's status, activity timeline, and statistics.
+ *
+ * Features:
+ * - Shows agent name, model, specialization, and current status.
+ * - Allows selection, pausing, resuming, and steering of the agent.
+ * - Displays a timeline of recent events (up to 10), with a count of additional events if present.
+ * - Shows statistics: number of tool calls, AI calls, and last activity timestamp.
+ *
+ * Props:
+ * - agent: The agent object to display.
+ * - events: Array of event logs associated with the agent.
+ * - isSelected: Whether this swimlane is currently selected.
+ * - onSelect: Callback when the swimlane is clicked.
+ * - onSteer: Callback to steer the agent (when running).
+ * - isPaused: Whether the agent is currently paused.
+ * - onResume: Optional callback to resume the agent (when paused).
+ */
 export function AgentSwimlane({ 
   agent, 
   events, 
@@ -41,6 +59,10 @@ export function AgentSwimlane({
     new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
   );
 
+  /**
+   * Returns the CSS classes for the left border and background color
+   * based on the agent's status.
+   */
   const getAgentStatusColor = (status: string) => {
     switch (status) {
       case 'RUNNING':

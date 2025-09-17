@@ -59,3 +59,13 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
     timeoutId = setTimeout(() => func(...args), delay);
   };
 }
+
+export function getModelColor(model: string): string {
+  const colors = {
+    'gemini-2.5-flash': 'bg-purple-100 text-purple-800 border-purple-200',
+    'gemini-2.5-flash-lite': 'bg-blue-100 text-blue-800 border-blue-200',
+    'gemini-2.5-pro': 'bg-green-100 text-green-800 border-green-200',
+    'gemini-2.0-pro': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  };
+  return colors[model as keyof typeof colors] || colors['gemini-2.0-pro'];
+}

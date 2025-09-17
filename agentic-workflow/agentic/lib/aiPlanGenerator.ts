@@ -63,6 +63,49 @@ const agentSpecializations = {
   'Database-Expert': ['database', 'schema', 'optimization', 'migrations']
 };
 
+// Function to find the best agent for a given task based on specializations
+function findBestAgentForTask(taskKeywords: string[]): string {
+  let bestAgent = 'Code-Analyzer'; // default
+  let maxMatches = 0;
+
+  for (const [agentName, specializations] of Object.entries(agentSpecializations)) {
+    const matches = taskKeywords.filter(keyword => 
+      specializations.some(spec => keyword.includes(spec) || spec.includes(keyword))
+    ).length;
+
+    if (matches > maxMatches) {
+      maxMatches = matches;
+      bestAgent = agentName;
+    }
+  }
+
+  return bestAgent;
+}
+
+// Function to get relevant agents based on goal keywords
+function getRelevantAgents(goal: string): string[] {
+  const goalKeywords = goal.toLowerCase().split(/\s+/);
+  const relevantAgents: Set<string> = new Set();
+
+  // Find agents whose specializations match the goal keywords
+  for (const [agentName, specializations] of Object.entries(agentSpecializations)) {
+    const hasMatch = specializations.some(spec => 
+      goalKeywords.some(keyword => keyword.includes(spec) || spec.includes(keyword))
+    );
+    
+    if (hasMatch) {
+      relevantAgents.add(agentName);
+    }
+  }
+
+  // If no specific matches, return a default set
+  if (relevantAgents.size === 0) {
+    return ['Code-Analyzer', 'Backend-Engineer', 'Test-Writer'];
+  }
+
+  return Array.from(relevantAgents);
+}
+
 export async function generatePlanSteps(missionGoal: string): Promise<GeneratedStep[]> {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
@@ -74,22 +117,22 @@ export async function generatePlanSteps(missionGoal: string): Promise<GeneratedS
   // Pattern matching to determine the type of task
   if (goal.includes('refactor') || goal.includes('restructure') || goal.includes('reorganize')) {
     steps = taskPatterns.refactor;
-    suggestedAgentTypes = ['Code-Analyzer', 'Backend-Engineer', 'Test-Writer'];
+    suggestedAgentTypes = getRelevantAgents(goal);
   } else if (goal.includes('api') || goal.includes('endpoint') || goal.includes('rest') || goal.includes('graphql')) {
     steps = taskPatterns.api;
-    suggestedAgentTypes = ['Backend-Engineer', 'Database-Expert', 'Test-Writer'];
+    suggestedAgentTypes = getRelevantAgents(goal);
   } else if (goal.includes('frontend') || goal.includes('ui') || goal.includes('interface') || goal.includes('component')) {
     steps = taskPatterns.frontend;
-    suggestedAgentTypes = ['Frontend-Developer', 'Test-Writer'];
+    suggestedAgentTypes = getRelevantAgents(goal);
   } else if (goal.includes('test') || goal.includes('testing') || goal.includes('coverage')) {
     steps = taskPatterns.testing;
-    suggestedAgentTypes = ['Test-Writer', 'Code-Analyzer'];
+    suggestedAgentTypes = getRelevantAgents(goal);
   } else if (goal.includes('database') || goal.includes('schema') || goal.includes('migration')) {
     steps = taskPatterns.database;
-    suggestedAgentTypes = ['Database-Expert', 'Backend-Engineer'];
+    suggestedAgentTypes = getRelevantAgents(goal);
   } else if (goal.includes('deploy') || goal.includes('ci/cd') || goal.includes('docker') || goal.includes('kubernetes')) {
     steps = taskPatterns.deployment;
-    suggestedAgentTypes = ['DevOps-Specialist', 'Backend-Engineer'];
+    suggestedAgentTypes = getRelevantAgents(goal);
   } else {
     // Generic development workflow
     steps = [
@@ -99,18 +142,29 @@ export async function generatePlanSteps(missionGoal: string): Promise<GeneratedS
       'Add comprehensive tests and documentation',
       'Review and optimize the implementation'
     ];
-    suggestedAgentTypes = ['Code-Analyzer', 'Backend-Engineer', 'Test-Writer'];
+    suggestedAgentTypes = getRelevantAgents(goal);
   }
 
   // Generate context files based on the goal
   const contextFiles = generateContextFiles(goal);
 
-  // Convert to GeneratedStep format
-  return steps.map((instruction, index) => ({
-    instruction,
-    suggested_agents: [suggestedAgentTypes[index % suggestedAgentTypes.length]],
-    context_files: index === 0 ? contextFiles : [] // Only first step gets context files
-  }));
+  // Convert to GeneratedStep format with intelligent agent assignment
+  return steps.map((instruction, index) => {
+    // Find the best agent for this specific instruction
+    const instructionKeywords = instruction.toLowerCase().split(/\s+/);
+    const bestAgent = findBestAgentForTask(instructionKeywords);
+    
+    // Ensure the best agent is in our suggested types, otherwise use round-robin
+    const assignedAgent = suggestedAgentTypes.includes(bestAgent) 
+      ? bestAgent 
+      : suggestedAgentTypes[index % suggestedAgentTypes.length];
+
+    return {
+      instruction,
+      suggested_agents: [assignedAgent],
+      context_files: index === 0 ? contextFiles : [] // Only first step gets context files
+    };
+  });
 }
 
 function generateContextFiles(goal: string): string[] {
@@ -141,3 +195,5 @@ function generateContextFiles(goal: string): string[] {
 
   return files.slice(0, 5); // Limit to 5 files
 }
+
+export default generatePlanSteps;

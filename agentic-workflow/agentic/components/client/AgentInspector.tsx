@@ -1,5 +1,25 @@
 "use client";
 
+/**
+ * AgentInspector is a client-side React component that displays detailed information
+ * and controls for a given agent, including its activity log, workspace files, context,
+ * timeline, settings, and terminal output. It provides a tabbed interface for navigating
+ * between these different aspects of the agent's state and behavior.
+ *
+ * Props:
+ * - agent: The Agent object containing metadata and configuration.
+ * - events: An array of EventLog objects representing the agent's recent activities.
+ * - onClose: A callback function to close the inspector panel.
+ *
+ * Features:
+ * - Activity: Shows a log of recent agent events, with expandable details.
+ * - Workspace: Lists files in the agent's workspace (mocked for demonstration).
+ * - Context: Displays current task context, configuration, and memory (mocked).
+ * - Timeline: Visualizes a chronological sequence of key agent events (mocked).
+ * - Settings: Allows adjustment of model and behavior settings (UI only).
+ * - Terminal: Shows a history of terminal commands and outputs (mocked).
+ */
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -152,9 +172,9 @@ export function AgentInspector({ agent, events, onClose }: AgentInspectorProps) 
             </div>
 
             <div className="space-y-2 h-full overflow-y-auto">
-              {sortedEvents.map((event) => (
+              {sortedEvents.slice(-10).map((event, idx) => (
                 <div
-                  key={event.event_id}
+                  key={`${event.event_id}-${idx}`}
                   className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                     selectedEvent?.event_id === event.event_id
                       ? 'bg-primary/10 border-primary'
@@ -169,7 +189,7 @@ export function AgentInspector({ agent, events, onClose }: AgentInspectorProps) 
                     </span>
                   </div>
                   
-                  {selectedEvent?.event_id === event.event_id && (
+                  {selectedEvent?.event_id === event.event_id && selectedEvent && (
                     <div className="mt-3 pt-3 border-t">
                       <div className="space-y-2">
                         <div className="text-xs font-medium">

@@ -20,8 +20,11 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
-  Minus
+  Minus,
+  BarChart3,
+  GitBranch
 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface SolutionVariantProps {
   variant: TaskVariant;
@@ -62,7 +65,7 @@ export function SolutionVariant({
     }
   };
 
-  const successRate = variant.metrics.tests_passed / Math.max(variant.metrics.tests_passed + variant.metrics.tests_failed, 1) * 100;
+  const successRate = variant.metrics.tests_passed ?? 0 / Math.max((variant.metrics.tests_passed ?? 0) + (variant.metrics.tests_failed ?? 0), 1) * 100;
 
   return (
     <Card 
@@ -96,110 +99,165 @@ export function SolutionVariant({
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col space-y-4">
-        {/* Metrics Summary */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="w-4 h-4 text-blue-500" />
-            <div>
-              <div className="font-medium">{formatDuration(variant.metrics.elapsed_time)}</div>
-              <div className="text-xs text-muted-foreground">Duration</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 text-sm">
-            <DollarSign className="w-4 h-4 text-green-500" />
-            <div>
-              <div className="font-medium">{formatCost(variant.metrics.estimated_cost)}</div>
-              <div className="text-xs text-muted-foreground">Cost</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 text-sm">
-            <FileText className="w-4 h-4 text-purple-500" />
-            <div>
-              <div className="font-medium">{variant.metrics.files_touched}</div>
-              <div className="text-xs text-muted-foreground">Files</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 text-sm">
-            <TestTube className="w-4 h-4 text-emerald-500" />
-            <div>
-              <div className="font-medium">{successRate.toFixed(0)}%</div>
-              <div className="text-xs text-muted-foreground">Tests Pass</div>
-            </div>
-          </div>
-        </div>
+        <Tabs defaultValue="overview" className="flex-1 flex flex-col">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="changes" className="flex items-center gap-2">
+              <GitBranch className="w-4 h-4" />
+              Changes
+            </TabsTrigger>
+            <TabsTrigger value="tests" className="flex items-center gap-2">
+              <TestTube className="w-4 h-4" />
+              Tests
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Test Results */}
-        <div className="space-y-2">
-          <div className="text-sm font-medium">Test Results</div>
-          <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-1 text-green-600">
-              <CheckCircle className="w-3 h-3" />
-              {variant.metrics.tests_passed} passed
-            </div>
-            {variant.metrics.tests_failed > 0 && (
-              <div className="flex items-center gap-1 text-red-600">
-                <span className="w-3 h-3 rounded-full bg-red-500 flex items-center justify-center">
-                  <span className="w-1 h-1 bg-white rounded-full"></span>
-                </span>
-                {variant.metrics.tests_failed} failed
+          <TabsContent value="overview" className="flex-1 space-y-4 mt-4">
+            {/* Metrics Summary */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="w-4 h-4 text-blue-500" />
+                <div>
+                  <div className="font-medium">{formatDuration(variant.metrics.elapsed_time)}</div>
+                  <div className="text-xs text-muted-foreground">Duration</div>
+                </div>
               </div>
-            )}
-          </div>
-        </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <DollarSign className="w-4 h-4 text-green-500" />
+                <div>
+                  <div className="font-medium">{formatCost(variant.metrics.estimated_cost)}</div>
+                  <div className="text-xs text-muted-foreground">Cost</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <FileText className="w-4 h-4 text-purple-500" />
+                <div>
+                  <div className="font-medium">{variant.metrics.files_touched}</div>
+                  <div className="text-xs text-muted-foreground">Files</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <TestTube className="w-4 h-4 text-emerald-500" />
+                <div>
+                  <div className="font-medium">{successRate.toFixed(0)}%</div>
+                  <div className="text-xs text-muted-foreground">Tests Pass</div>
+                </div>
+              </div>
+            </div>
 
-        {/* File Changes */}
-        <div className="flex-1 space-y-2">
-          <div className="text-sm font-medium">Code Changes</div>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {variant.files_changed.map((file, index) => (
-              <div key={index} className="border rounded-lg">
-                <div 
-                  className="flex items-center justify-between p-3 cursor-pointer hover:bg-accent/50"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setExpandedFile(expandedFile === file.file_path ? null : file.file_path);
-                  }}
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Code className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                    <span className="text-sm font-mono truncate">{file.file_path}</span>
-                    <Badge className={cn('text-xs', getChangeTypeColor(file.change_type))}>
-                      {file.change_type}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="flex items-center gap-1 text-xs">
-                      <span className="text-green-600 flex items-center gap-1">
-                        <Plus className="w-2 h-2" />
-                        {file.additions}
-                      </span>
-                      <span className="text-red-600 flex items-center gap-1">
-                        <Minus className="w-2 h-2" />
-                        {file.deletions}
-                      </span>
+            {/* Quick Summary */}
+            <div className="space-y-2">
+              <div className="text-sm font-medium">Summary</div>
+              <div className="text-sm text-muted-foreground">
+                This solution modified {variant.metrics.files_touched} files with a {successRate.toFixed(0)}% test success rate, 
+                completing in {formatDuration(variant.metrics.elapsed_time)} at an estimated cost of {formatCost(variant.metrics.estimated_cost)}.
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="changes" className="flex-1 space-y-4 mt-4">
+            {/* File Changes */}
+            <div className="space-y-2">
+              <div className="text-sm font-medium">Code Changes</div>
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {variant.files_changed.map((file, index) => (
+                  <div key={index} className="border rounded-lg">
+                    <div 
+                      className="flex items-center justify-between p-3 cursor-pointer hover:bg-accent/50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedFile(expandedFile === file.file_path ? null : file.file_path);
+                      }}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Code className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                        <span className="text-sm font-mono truncate">{file.file_path}</span>
+                        <Badge className={cn('text-xs', getChangeTypeColor(file.change_type))}>
+                          {file.change_type}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1 text-xs">
+                          <span className="text-green-600 flex items-center gap-1">
+                            <Plus className="w-2 h-2" />
+                            {file.additions}
+                          </span>
+                          <span className="text-red-600 flex items-center gap-1">
+                            <Minus className="w-2 h-2" />
+                            {file.deletions}
+                          </span>
+                        </div>
+                        {expandedFile === file.file_path ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </div>
                     </div>
-                    {expandedFile === file.file_path ? (
-                      <ChevronUp className="w-4 h-4" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4" />
+                    
+                    {expandedFile === file.file_path && (
+                      <div className="border-t bg-muted/30 p-3">
+                        <pre className="text-xs font-mono whitespace-pre-wrap overflow-x-auto max-h-32 overflow-y-auto">
+                          <code>{file.diff}</code>
+                        </pre>
+                      </div>
                     )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="tests" className="flex-1 space-y-4 mt-4">
+            {/* Test Results */}
+            <div className="space-y-4">
+              <div className="text-sm font-medium">Test Results</div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 border rounded-lg bg-green-50/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-800">Passed</span>
+                  </div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {variant.metrics.tests_passed}
                   </div>
                 </div>
                 
-                {expandedFile === file.file_path && (
-                  <div className="border-t bg-muted/30 p-3">
-                    <pre className="text-xs font-mono whitespace-pre-wrap overflow-x-auto max-h-32 overflow-y-auto">
-                      <code>{file.diff}</code>
-                    </pre>
+                <div className="p-4 border rounded-lg bg-red-50/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
+                      <span className="w-2 h-2 bg-white rounded-full"></span>
+                    </span>
+                    <span className="text-sm font-medium text-red-800">Failed</span>
                   </div>
-                )}
+                  <div className="text-2xl font-bold text-red-600">
+                    {variant.metrics.tests_failed}
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Success Rate</span>
+                  <span className="text-sm text-muted-foreground">
+                    {variant.metrics.tests_passed ?? 0} / {(variant.metrics.tests_passed ?? 0) + (variant.metrics.tests_failed ?? 0)}
+                  </span>
+                </div>
+                <Progress value={successRate} className="h-2" />
+                <div className="text-right text-sm text-muted-foreground mt-1">
+                  {successRate.toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Actions */}
         <div className="flex-shrink-0 pt-4 border-t space-y-2">

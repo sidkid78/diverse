@@ -2,6 +2,42 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
+export type RunMode = 'single' | 'best-of-n';
+
+export interface PlanCreatePayload {
+  name: string;
+  description?: string;
+  estimated_cost?: number;
+}
+
+export interface TaskCreatePayload {
+  title: string;
+  description?: string;
+  agents?: unknown[];
+  run_mode?: RunMode;
+  parallel_runs?: number;
+  estimated_cost?: number;
+}
+
+export interface ApiTask {
+  task_id: string;
+  title: string;
+  description: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  created_at: string;
+  updated_at: string;
+  agents: unknown[];
+  run_mode: RunMode;
+  parallel_runs: number;
+  metrics: {
+    elapsed_time: number;
+    estimated_cost: number;
+    files_touched: number;
+    tests_passed: number;
+    tests_failed: number;
+  };
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -58,15 +94,15 @@ class ApiClient {
     return this.request(`/tasks/${taskId}`);
   }
 
-  async createTask(taskData: any) {
-    return this.request('/tasks', {
+  async createTask(taskData: TaskCreatePayload) {
+    return this.request<{ task: ApiTask; message: string }>('/tasks', {
       method: 'POST',
       body: JSON.stringify(taskData),
     });
   }
 
-  async updateTask(taskId: string, updateData: any) {
-    return this.request(`/tasks/${taskId}`, {
+  async updateTask(taskId: string, updateData: TaskCreatePayload) {
+    return this.request<{ task: ApiTask }>('/tasks/' + taskId, {
       method: 'PUT',
       body: JSON.stringify(updateData),
     });
@@ -79,7 +115,7 @@ class ApiClient {
   }
 
   // Agent Control API
-  async controlAgent(taskId: string, agentId: string, action: string, payload?: any) {
+  async controlAgent(taskId: string, agentId: string, action: string, payload?: unknown) {
     return this.request(`/tasks/${taskId}/agents/${agentId}`, {
       method: 'POST',
       body: JSON.stringify({ action, payload }),
@@ -106,14 +142,14 @@ class ApiClient {
     return this.request(`/plans/${planId}`);
   }
 
-  async createPlan(planData: any) {
+  async createPlan(planData: PlanCreatePayload) {
     return this.request('/plans', {
       method: 'POST',
       body: JSON.stringify(planData),
     });
   }
 
-  async updatePlan(planId: string, updateData: any) {
+  async updatePlan(planId: string, updateData: PlanCreatePayload) {
     return this.request(`/plans/${planId}`, {
       method: 'PUT',
       body: JSON.stringify(updateData),
@@ -126,8 +162,8 @@ class ApiClient {
     });
   }
 
-  async executePlan(planId: string, executionData: any) {
-    return this.request(`/plans/${planId}/execute`, {
+  async executePlan(planId: string, executionData: { agents?: unknown[]; run_mode?: RunMode; parallel_runs?: number }) {
+    return this.request<{ task: ApiTask; message: string }>(`/plans/${planId}/execute`, {
       method: 'POST',
       body: JSON.stringify(executionData),
     });
@@ -145,14 +181,14 @@ export const apiClient = new ApiClient();
 
 // Export types for better TypeScript support
 export interface TaskResponse {
-  tasks: any[];
+  tasks: TaskCreatePayload[];
   total: number;
   limit: number;
   offset: number;
 }
 
 export interface PlanResponse {
-  plans: any[];
+  plans: PlanCreatePayload[];
   total: number;
   limit: number;
   offset: number;

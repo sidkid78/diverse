@@ -45,7 +45,7 @@ export class GeminiAgent {
       });
       
       const duration = (Date.now() - startTime) / 1000;
-      const cost = this.calculateCost(response.text?.length || 0, duration);
+      const cost = this.calculateCost(response.text?.length || 0, duration, prompt.length);
       
       // Update metrics
       this.updateMetrics(duration, cost, true);
@@ -69,10 +69,10 @@ export class GeminiAgent {
     }
   }
 
-  private calculateCost(outputLength: number, duration: number): number {
+  private calculateCost(outputLength: number, duration: number, inputLength: number): number {
     // Rough cost estimation based on Gemini 2.0 pricing
     const baseRate = this.config.model.includes('thinking') ? 0.003 : 0.002;
-    return (outputLength / 1000) * baseRate;
+    return ((outputLength + inputLength) / 1000) * baseRate;
   }
 
   private updateMetrics(duration: number, cost: number, success: boolean) {
