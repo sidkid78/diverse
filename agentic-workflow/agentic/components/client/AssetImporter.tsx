@@ -18,15 +18,31 @@ import {
   Copy
 } from 'lucide-react';
 
+interface Asset {
+  id?: string;
+  name?: string;
+  description?: string;
+  content?: string;
+  tags?: string[];
+  category?: string;
+  starred?: boolean;
+  type?: 'plan' | 'prompt' | 'doc';
+  author?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  usageCount?: number;
+  isNew?: boolean;
+}
+
 interface AssetImporterProps {
   onClose: () => void;
-  onImport: (assets: any[]) => void;
+  onImport: (assets: Asset[]) => void;
 }
 
 export function AssetImporter({ onClose, onImport }: AssetImporterProps) {
   const [importMethod, setImportMethod] = useState<'file' | 'url' | 'text'>('file');
   const [importData, setImportData] = useState('');
-  const [parsedAssets, setParsedAssets] = useState<any[]>([]);
+  const [parsedAssets, setParsedAssets] = useState<Asset[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,24 +75,24 @@ export function AssetImporter({ onClose, onImport }: AssetImporterProps) {
     reader.readAsText(file);
   };
 
-  const processImportData = (data: any) => {
-    let assets: any[] = [];
+  const processImportData = (data: Asset[] | { assets: Asset[] }) => {
+    let assets: Asset[] = [];
     
     if (Array.isArray(data)) {
-      assets = data;
+      assets = data as Asset[];
     } else if (data.assets && Array.isArray(data.assets)) {
-      assets = data.assets;
+      assets = data.assets as Asset[];
     } else {
-      assets = [data];
+      assets = [data as Asset];
     }
     
     // Validate and format assets
     const formattedAssets = assets.map((asset, index) => ({
       id: asset.id || `imported-${Date.now()}-${index}`,
       type: asset.type || 'doc',
-      name: asset.name || asset.title || `Imported Asset ${index + 1}`,
-      description: asset.description || asset.summary || '',
-      content: asset.content || asset.body || '',
+      name: asset.name || asset.name || `Imported Asset ${index + 1}`,
+      description: asset.description || asset.description || '',
+      content: asset.content || asset.content || '',
       tags: asset.tags || [],
       category: asset.category || 'Imported',
       author: asset.author || 'Imported',
@@ -349,7 +365,7 @@ export function AssetImporter({ onClose, onImport }: AssetImporterProps) {
                   {parsedAssets.map((asset, index) => (
                     <Card key={index} className="p-3">
                       <div className="flex items-start gap-3">
-                        {getAssetIcon(asset.type)}
+                        {getAssetIcon(asset.type as string)}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium truncate">{asset.name}</h4>
@@ -360,14 +376,14 @@ export function AssetImporter({ onClose, onImport }: AssetImporterProps) {
                           <p className="text-sm text-muted-foreground truncate">
                             {asset.description}
                           </p>
-                          {asset.tags.length > 0 && (
+                          {asset.tags && asset.tags.length > 0 && (
                             <div className="flex gap-1 mt-2">
                               {asset.tags.slice(0, 3).map((tag: string) => (
                                 <Badge key={tag} variant="outline" className="text-xs">
                                   {tag}
                                 </Badge>
                               ))}
-                              {asset.tags.length > 3 && (
+                              {asset.tags && asset.tags.length > 3 && (
                                 <Badge variant="outline" className="text-xs">
                                   +{asset.tags.length - 3}
                                 </Badge>

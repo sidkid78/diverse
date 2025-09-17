@@ -22,6 +22,22 @@ import {
   List,
 } from 'lucide-react';
 
+interface Asset {
+  id?: string;
+  name?: string;
+  description?: string;
+  content?: string;
+  tags?: string[];
+  category?: string;
+  starred?: boolean;
+  type?: 'plan' | 'prompt' | 'doc';
+  author?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  usageCount?: number;
+  isNew?: boolean;
+}
+
 export function ArmoryInterface() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -29,7 +45,7 @@ export function ArmoryInterface() {
   const [sortBy, setSortBy] = useState<'recent' | 'name' | 'usage'>('recent');
   const [showEditor, setShowEditor] = useState(false);
   const [showImporter, setShowImporter] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState<unknown>(null);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   const assetCounts = {
     plans: 12,
@@ -43,7 +59,7 @@ export function ArmoryInterface() {
     setShowEditor(true);
   };
 
-  const handleEditAsset = (asset: unknown) => {
+  const handleEditAsset = (asset: Asset) => {
     setSelectedAsset(asset);
     setShowEditor(true);
   };
@@ -217,12 +233,12 @@ export function ArmoryInterface() {
       {/* Modals */}
       {showEditor && (
         <AssetEditor
-          asset={selectedAsset}
+          asset={selectedAsset as Asset}
           onClose={() => {
             setShowEditor(false);
             setSelectedAsset(null);
           }}
-          onSave={(asset: unknown) => {
+          onSave={(asset: Asset) => {
             console.log('Saving asset:', asset);
             setShowEditor(false);
             setSelectedAsset(null);
@@ -233,7 +249,7 @@ export function ArmoryInterface() {
       {showImporter && (
         <AssetImporter
           onClose={() => setShowImporter(false)}
-          onImport={(assets: unknown[]) => {
+          onImport={(assets: Asset[]) => {
             console.log('Importing assets:', assets);
             setShowImporter(false);
           }}

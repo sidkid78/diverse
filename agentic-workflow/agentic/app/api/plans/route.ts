@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Plan } from '@/types';
 
 // Mock plans database
 const mockPlans = [
@@ -12,28 +13,28 @@ const mockPlans = [
     tags: ['authentication', 'jwt', 'migration', 'security'],
     steps: [
       {
-        step_id: 'step-1',
+        step_id: 'step-1', 
         title: 'Analysis Phase',
         description: 'Analyze current session-based authentication implementation',
         estimated_duration: 1800,
         agent_requirements: ['analysis', 'security-review']
       },
       {
-        step_id: 'step-2',
+        step_id: 'step-2', 
         title: 'JWT Implementation',
         description: 'Implement JWT token generation and validation',
         estimated_duration: 3600,
         agent_requirements: ['backend-development', 'security']
       },
       {
-        step_id: 'step-3',
+        step_id: 'step-3', 
         title: 'Middleware Update',
         description: 'Update authentication middleware to use JWT',
         estimated_duration: 2400,
         agent_requirements: ['backend-development']
       },
       {
-        step_id: 'step-4',
+        step_id: 'step-4', 
         title: 'Testing & Validation',
         description: 'Comprehensive testing of new authentication flow',
         estimated_duration: 1800,
@@ -68,21 +69,21 @@ const mockPlans = [
     tags: ['documentation', 'api', 'openapi', 'swagger'],
     steps: [
       {
-        step_id: 'step-1',
+        step_id: 'step-1', 
         title: 'Code Analysis',
         description: 'Analyze existing API endpoints and schemas',
         estimated_duration: 1200,
         agent_requirements: ['analysis', 'api-documentation']
       },
       {
-        step_id: 'step-2',
+        step_id: 'step-2', 
         title: 'OpenAPI Generation',
         description: 'Generate OpenAPI/Swagger specifications',
         estimated_duration: 2400,
         agent_requirements: ['documentation', 'api-design']
       },
       {
-        step_id: 'step-3',
+        step_id: 'step-3', 
         title: 'Documentation Site',
         description: 'Create interactive documentation website',
         estimated_duration: 1800,
@@ -177,7 +178,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate estimates
-    const estimated_duration = steps.reduce((sum: number, step: any) => 
+    const estimated_duration = steps.reduce((sum: number, step: { estimated_duration?: number }) => 
       sum + (step.estimated_duration || 0), 0);
     const estimated_cost = Math.floor(estimated_duration * 0.25); // $0.25 per second estimate
 
@@ -190,7 +191,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
       author: author || 'Anonymous',
       tags: tags || [],
-      steps: steps.map((step: any, index: number) => ({
+      steps: steps.map((step: { estimated_duration?: number }, index: number) => ({
         step_id: `step-${index + 1}`,
         ...step
       })),
@@ -202,7 +203,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Add to mock database
-    mockPlans.push(newPlan);
+    mockPlans.push(newPlan as unknown as Plan);
 
     return NextResponse.json({
       plan: newPlan,

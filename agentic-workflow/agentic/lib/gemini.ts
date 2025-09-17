@@ -5,8 +5,6 @@ import { AgentConfig } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-
-
 export class GeminiAgent {
   private config: AgentConfig;
   private metrics: {

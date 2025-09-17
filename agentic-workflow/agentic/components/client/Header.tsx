@@ -36,7 +36,7 @@ export function Header() {
         
         <div className="flex items-center gap-2 text-sm">
           <DollarSign className="w-4 h-4 text-yellow-500" />
-          <span className="text-muted-foreground">Today's Cost:</span>
+          <span className="text-muted-foreground">Today&apos;s Cost:</span>
           <Badge variant="warning">$12.50</Badge>
         </div>
       </div>

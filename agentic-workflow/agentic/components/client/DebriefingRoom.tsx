@@ -265,7 +265,7 @@ const mockVariants: TaskVariant[] = [
 ];
 
 export function DebriefingRoom({ taskId }: DebriefingRoomProps) {
-  const { variants, selectedVariant, setVariants, setSelectedVariant } = useDebriefingStore();
+  const { selectedVariant, setVariants, setSelectedVariant } = useDebriefingStore();
   const [viewMode, setViewMode] = useState<'variants' | 'comparison'>('variants');
 
   useEffect(() => {
@@ -302,11 +302,11 @@ export function DebriefingRoom({ taskId }: DebriefingRoomProps) {
     
     // Simple scoring: balance cost, time, and test success
     return mockVariants.reduce((best, current) => {
-      const currentScore = (current.metrics.tests_passed / Math.max(current.metrics.tests_passed + current.metrics.tests_failed, 1)) * 100 
+      const currentScore = ((current.metrics.tests_passed ?? 0) / Math.max((current.metrics.tests_passed ?? 0) + (current.metrics.tests_failed ?? 0), 1)) * 100 
                           - (current.metrics.estimated_cost / 100) 
                           - (current.metrics.elapsed_time / 60);
       
-      const bestScore = (best.metrics.tests_passed / Math.max(best.metrics.tests_passed + best.metrics.tests_failed, 1)) * 100 
+      const bestScore = ((best.metrics.tests_passed ?? 0) / Math.max((best.metrics.tests_passed ?? 0) + (best.metrics.tests_failed ?? 0), 1)) * 100 
                        - (best.metrics.estimated_cost / 100) 
                        - (best.metrics.elapsed_time / 60);
       
@@ -363,6 +363,14 @@ export function DebriefingRoom({ taskId }: DebriefingRoomProps) {
               Side-by-Side Comparison
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="variants" className="mt-0">
+            {/* Content for variants tab is handled below in the main content area */}
+          </TabsContent>
+          
+          <TabsContent value="comparison" className="mt-0">
+            {/* Content for comparison tab is handled below in the main content area */}
+          </TabsContent>
         </Tabs>
 
         <div className="flex items-center gap-2">
@@ -381,6 +389,9 @@ export function DebriefingRoom({ taskId }: DebriefingRoomProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Solutions Overview</CardTitle>
+          <CardDescription>
+            Performance metrics and statistics across all generated solution variants
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -418,7 +429,7 @@ export function DebriefingRoom({ taskId }: DebriefingRoomProps) {
               <CheckCircle className="w-5 h-5 text-emerald-500" />
               <div>
                 <div className="font-medium">
-                  {mockVariants.reduce((acc, v) => acc + v.metrics.tests_passed, 0)} passed
+                  {mockVariants.reduce((acc, v) => acc + (v.metrics.tests_passed ?? 0), 0)} passed
                 </div>
                 <div className="text-sm text-muted-foreground">Total Tests</div>
               </div>
@@ -429,24 +440,28 @@ export function DebriefingRoom({ taskId }: DebriefingRoomProps) {
 
       {/* Content Area */}
       <div className="flex-1 min-h-0">
-        {viewMode === 'variants' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-            {mockVariants.map((variant, index) => (
-              <SolutionVariant
-                key={variant.task_id}
-                variant={variant}
-                rank={index + 1}
-                isBest={variant === bestVariant}
-                isSelected={selectedVariant === variant.task_id}
-                onSelect={() => setSelectedVariant(variant.task_id)}
-                onApprove={() => handleApproveVariant(variant.task_id)}
-                onRequestRevisions={() => handleRequestRevisions(variant.task_id)}
-              />
-            ))}
-          </div>
-        ) : (
-          <ComparisonMatrix variants={mockVariants} />
-        )}
+        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'variants' | 'comparison')}>
+          <TabsContent value="variants" className="h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+              {mockVariants.map((variant, index) => (
+                <SolutionVariant
+                  key={variant.task_id}
+                  variant={variant}
+                  rank={index + 1}
+                  isBest={variant === bestVariant}
+                  isSelected={selectedVariant === variant.task_id}
+                  onSelect={() => setSelectedVariant(variant.task_id)}
+                  onApprove={() => handleApproveVariant(variant.task_id)}
+                  onRequestRevisions={() => handleRequestRevisions(variant.task_id)}
+                />
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="comparison" className="h-full">
+            <ComparisonMatrix variants={mockVariants} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

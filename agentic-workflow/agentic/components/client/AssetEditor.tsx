@@ -18,13 +18,31 @@ import {
   User,
   Calendar,
   Star,
-  Plus
+  Plus,
+  Settings,
+  Edit3
 } from 'lucide-react';
 
+interface Asset {
+  id?: string;
+  name?: string;
+  description?: string;
+  content?: string;
+  tags?: string[];
+  category?: string;
+  starred?: boolean;
+  type?: 'plan' | 'prompt' | 'doc';
+  author?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  usageCount?: number;
+  isNew?: boolean;
+}
+
 interface AssetEditorProps {
-  asset: any;
+  asset: Asset;
   onClose: () => void;
-  onSave: (asset: any) => void;
+  onSave: (asset: Asset) => void;
 }
 
 export function AssetEditor({ asset, onClose, onSave }: AssetEditorProps) {
@@ -39,6 +57,7 @@ export function AssetEditor({ asset, onClose, onSave }: AssetEditorProps) {
   });
   const [newTag, setNewTag] = useState('');
   const [previewMode, setPreviewMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('content');
 
   useEffect(() => {
     if (asset && !asset.isNew) {
@@ -108,6 +127,15 @@ export function AssetEditor({ asset, onClose, onSave }: AssetEditorProps) {
       case 'prompt': return <MessageSquare className="w-4 h-4 text-green-500" />;
       case 'doc': return <BookOpen className="w-4 h-4 text-purple-500" />;
       default: return <FileText className="w-4 h-4" />;
+    }
+  };
+
+  const getTypeDescription = (type: string) => {
+    switch (type) {
+      case 'plan': return 'Create and manage project plans with structured steps and objectives';
+      case 'prompt': return 'Design AI prompts with clear instructions and formatting guidelines';
+      case 'doc': return 'Write comprehensive documentation with examples and best practices';
+      default: return 'Create and edit your asset';
     }
   };
 
@@ -198,10 +226,15 @@ example code here
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {getTypeIcon(formData.type)}
-              <CardTitle>
-                {asset?.isNew ? 'Create New' : 'Edit'} {formData.type.charAt(0).toUpperCase() + formData.type.slice(1)}
-              </CardTitle>
-              {formData.starred && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
+              <div>
+                <CardTitle>
+                  {asset?.isNew ? 'Create New' : 'Edit'} {formData.type.charAt(0).toUpperCase() + formData.type.slice(1)}
+                  {formData.starred && <Star className="w-4 h-4 text-yellow-500 fill-current ml-2 inline" />}
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  {getTypeDescription(formData.type)}
+                </CardDescription>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={() => setPreviewMode(!previewMode)}>
@@ -219,12 +252,22 @@ example code here
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col min-h-0 space-y-4">
+        <CardContent className="flex-1 flex flex-col min-h-0">
           {!previewMode ? (
-            <>
-              {/* Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="content" className="flex items-center gap-2">
+                  <Edit3 className="w-4 h-4" />
+                  Content
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="content" className="flex-1 flex flex-col min-h-0 mt-4">
+                <div className="space-y-2 mb-4">
                   <label className="text-sm font-medium">Name *</label>
                   <Input
                     value={formData.name}
@@ -232,7 +275,29 @@ example code here
                     placeholder="Enter asset name..."
                   />
                 </div>
-                
+
+                <div className="space-y-2 mb-4">
+                  <label className="text-sm font-medium">Description</label>
+                  <Textarea
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    placeholder="Brief description of this asset..."
+                    rows={2}
+                  />
+                </div>
+
+                <div className="flex-1 flex flex-col min-h-0 space-y-2">
+                  <label className="text-sm font-medium">Content *</label>
+                  <Textarea
+                    value={formData.content}
+                    onChange={(e) => handleInputChange('content', e.target.value)}
+                    placeholder={getPlaceholderContent(formData.type)}
+                    className="flex-1 min-h-0 resize-none font-mono text-sm"
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="settings" className="flex-1 flex flex-col min-h-0 mt-4 space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Category</label>
                   <Input
@@ -241,76 +306,71 @@ example code here
                     placeholder="e.g., Frontend, Backend, Security..."
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Description</label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Brief description of this asset..."
-                  rows={2}
-                />
-              </div>
-
-              {/* Tags */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Tags</label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {formData.tags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="flex items-center gap-1">
-                      <Tag className="w-3 h-3" />
-                      {tag}
-                      <button
-                        onClick={() => handleRemoveTag(tag)}
-                        className="ml-1 hover:text-red-500"
-                        aria-label={`Remove ${tag} tag`}
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </Badge>
-                  ))}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Tags</label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {formData.tags.map((tag) => (
+                      <Badge key={tag} variant="outline" className="flex items-center gap-1">
+                        <Tag className="w-3 h-3" />
+                        {tag}
+                        <button
+                          onClick={() => handleRemoveTag(tag)}
+                          className="ml-1 hover:text-red-500"
+                          aria-label={`Remove ${tag} tag`}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      placeholder="Add a tag..."
+                      onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+                      className="flex-1"
+                    />
+                    <Button onClick={handleAddTag} size="sm">
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Input
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    placeholder="Add a tag..."
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-                    className="flex-1"
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="starred"
+                    checked={formData.starred}
+                    onChange={(e) => handleInputChange('starred', e.target.checked)}
+                    className="rounded"
                   />
-                  <Button onClick={handleAddTag} size="sm">
-                    <Plus className="w-4 h-4" />
-                  </Button>
+                  <label htmlFor="starred" className="text-sm font-medium flex items-center gap-1">
+                    <Star className="w-3 h-3" />
+                    Star this asset
+                  </label>
                 </div>
-              </div>
 
-              {/* Starred */}
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="starred"
-                  checked={formData.starred}
-                  onChange={(e) => handleInputChange('starred', e.target.checked)}
-                  className="rounded"
-                />
-                <label htmlFor="starred" className="text-sm font-medium flex items-center gap-1">
-                  <Star className="w-3 h-3" />
-                  Star this asset
-                </label>
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 flex flex-col min-h-0 space-y-2">
-                <label className="text-sm font-medium">Content *</label>
-                <Textarea
-                  value={formData.content}
-                  onChange={(e) => handleInputChange('content', e.target.value)}
-                  placeholder={getPlaceholderContent(formData.type)}
-                  className="flex-1 min-h-0 resize-none font-mono text-sm"
-                />
-              </div>
-            </>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Asset Type</label>
+                  <div className="flex gap-2">
+                    {(['plan', 'prompt', 'doc'] as const).map((type) => (
+                      <Button
+                        key={type}
+                        variant={formData.type === type ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => handleInputChange('type', type)}
+                        className="flex items-center gap-2"
+                      >
+                        {getTypeIcon(type)}
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           ) : (
             /* Preview Mode */
             <div className="flex-1 min-h-0 space-y-4">

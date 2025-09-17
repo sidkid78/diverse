@@ -132,8 +132,8 @@ export function AgentSwimlane({
           
           {sortedEvents.length > 0 ? (
             <div className="flex gap-2 overflow-x-auto pb-2">
-              {sortedEvents.slice(-10).map((event) => ( // Show last 10 events
-                <div key={event.event_id} className="flex-shrink-0">
+              {sortedEvents.slice(-10).map((event, index) => ( // Show last 10 events
+                <div key={`${event.event_id}-${event.timestamp}-${index}`} className="flex-shrink-0">
                   <EventChip 
                     event={event}
                     onClick={() => onSelect()}

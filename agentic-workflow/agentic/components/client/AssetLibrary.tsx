@@ -20,12 +20,28 @@ import {
 } from 'lucide-react';
 import { formatTimestamp } from '@/lib/utils';
 
+interface Asset {
+  id?: string;
+  name?: string;
+  description?: string;
+  content?: string;
+  tags?: string[];
+  category?: string;
+  starred?: boolean;
+  type?: 'plan' | 'prompt' | 'doc';
+  author?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  usageCount?: number;
+  isNew?: boolean;
+}
+
 interface AssetLibraryProps {
   searchQuery: string;
   filterBy: 'all' | 'plans' | 'prompts' | 'docs';
   sortBy: 'recent' | 'name' | 'usage';
   viewMode: 'grid' | 'list';
-  onEditAsset: (asset: unknown) => void;
+  onEditAsset: (asset: Asset) => void;
 }
 
 // Mock data for assets
@@ -364,24 +380,24 @@ export function AssetLibrary({ searchQuery, filterBy, sortBy, viewMode, onEditAs
     }
   };
 
-  const handleView = (asset: any) => {
+  const handleView = (asset: Asset) => {
     console.log('Viewing asset:', asset.name);
-    alert(`👁️ Viewing "${asset.name}"\n\nContent preview:\n${asset.content.substring(0, 200)}...`);
+    alert(`👁️ Viewing "${asset.name}"\n\nContent preview:\n${asset.content?.substring(0, 200)}...`);
   };
 
-  const handleDuplicate = (asset: any) => {
+  const handleDuplicate = (asset: Asset) => {
     console.log('Duplicating asset:', asset.name);
     alert(`📋 "${asset.name}" duplicated successfully!`);
   };
 
-  const handleDelete = (asset: any) => {
+  const handleDelete = (asset: Asset) => {
     if (confirm(`Are you sure you want to delete "${asset.name}"?`)) {
       console.log('Deleting asset:', asset.name);
       alert(`🗑️ "${asset.name}" deleted successfully!`);
     }
   };
 
-  const handleDownload = (asset: any) => {
+  const handleDownload = (asset: Asset) => {
     console.log('Downloading asset:', asset.name);
     alert(`📥 "${asset.name}" downloaded successfully!`);
   };
@@ -455,20 +471,20 @@ export function AssetLibrary({ searchQuery, filterBy, sortBy, viewMode, onEditAs
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <Button size="sm" onClick={() => handleView(asset)}>
+                  <Button size="sm" onClick={() => handleView(asset as Asset)}>
                     <Eye className="w-3 h-3 mr-1" />
                     View
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => onEditAsset(asset)}>
+                  <Button size="sm" variant="outline" onClick={() => onEditAsset(asset as Asset)}>
                     <Edit className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleDuplicate(asset)}>
+                  <Button size="sm" variant="outline" onClick={() => handleDuplicate(asset as Asset)}>
                     <Copy className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleDownload(asset)}>
+                  <Button size="sm" variant="outline" onClick={() => handleDownload(asset as Asset)}>
                     <Download className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleDelete(asset)} className="text-red-600">
+                  <Button size="sm" variant="outline" onClick={() => handleDelete(asset as Asset)} className="text-red-600">
                     <Trash2 className="w-3 h-3" />
                   </Button>
                 </div>
@@ -512,20 +528,20 @@ export function AssetLibrary({ searchQuery, filterBy, sortBy, viewMode, onEditAs
                   </div>
                   
                   <div className="flex items-center gap-1">
-                    <Button size="sm" onClick={() => handleView(asset)}>
+                    <Button size="sm" onClick={() => handleView(asset as Asset)}>
                       <Eye className="w-3 h-3 mr-1" />
                       View
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => onEditAsset(asset)}>
+                    <Button size="sm" variant="outline" onClick={() => onEditAsset(asset as Asset)}>
                       <Edit className="w-3 h-3" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleDuplicate(asset)}>
+                    <Button size="sm" variant="outline" onClick={() => handleDuplicate(asset as Asset)}>
                       <Copy className="w-3 h-3" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleDownload(asset)}>
+                    <Button size="sm" variant="outline" onClick={() => handleDownload(asset as Asset)}>
                       <Download className="w-3 h-3" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleDelete(asset)} className="text-red-600">
+                    <Button size="sm" variant="outline" onClick={() => handleDelete(asset as Asset)} className="text-red-600">
                       <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>

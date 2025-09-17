@@ -85,8 +85,11 @@ export async function PUT(
 
     // Recalculate estimates if steps changed
     if (body.steps) {
-      const estimated_duration = body.steps.reduce((sum: number, step: any) => 
-        sum + (step.estimated_duration || 0), 0);
+      const estimated_duration = body.steps.reduce(
+        (sum: number, step: { estimated_duration?: number }) =>
+          sum + (step.estimated_duration ?? 0),
+        0
+      );
       body.estimated_cost = Math.floor(estimated_duration * 0.25);
       body.estimated_duration = estimated_duration;
     }
