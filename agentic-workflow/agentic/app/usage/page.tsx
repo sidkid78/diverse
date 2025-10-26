@@ -12,6 +12,17 @@ import {
   Calendar,
   Zap
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const getBarHeightClass = (cost: number) => {
+  const h = Math.max(20, (cost /35) * 40);
+  if (h < 24) return 'h-5';
+  if (h < 28) return 'h-6';
+  if (h < 32) return 'h-7';
+  if (h < 36) return 'h-8';
+  if (h < 40) return 'h-9';
+  return 'h-10';
+};
 
 // Mock usage data
 const mockUsageData = {
@@ -196,8 +207,7 @@ export default function UsagePage() {
                   <div key={day.date} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center gap-3">
                       <div 
-                        className="w-2 bg-blue-500 rounded usage-bar"
-                        style={{ '--bar-height': `${Math.max(20, (day.cost / 35) * 40)}px` } as React.CSSProperties}
+                        className={cn("w-2 bg-blue-500 rounded", getBarHeightClass(day.cost))}
                       ></div>
                       <div>
                         <div className="font-medium">

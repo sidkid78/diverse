@@ -8,8 +8,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Agentic Workflow Platform',
-  description: 'Orchestrate AI agents to execute complex engineering tasks',
+  title: 'Agentic Workflow Platform | Winter is Coming',
+  description: 'Command your legion of AI agents from the frozen citadel. Winter is Coming.',
 };
 
 export default function RootLayout({
@@ -18,9 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark">
       <body className={inter.className}>
-        <ThemeProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <div className="flex h-screen bg-background">
             <Sidebar />
             <div className="flex flex-col flex-1 overflow-hidden">

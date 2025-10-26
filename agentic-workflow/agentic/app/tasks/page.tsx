@@ -19,7 +19,27 @@ import {
 } from 'lucide-react';
 
 // Mock data for active tasks
-const mockTasks = [
+type TaskStatus = 'IN_PROGRESS' | 'COMPLETED' | 'PENDING' | 'FAILED' | 'CANCELLED'
+type AgentStatus = 'RUNNING' | 'SUCCESS' | 'PENDING'
+interface AgentSummary { agent_id: string; name: string; status: AgentStatus }
+interface TaskSummary {
+  task_id: string
+  plan_id: string
+  title: string
+  description: string
+  status: TaskStatus
+  agents: AgentSummary[]
+  created_at: string
+  metrics: {
+    elapsed_time: number
+    estimated_cost: number
+    files_touched: number
+    tests_passed: number
+    tests_failed: number
+  }
+}
+
+const mockTasks: TaskSummary[] = [
   {
     task_id: 'task-1',
     plan_id: 'plan-1',
@@ -201,7 +221,7 @@ export default function TasksPage() {
                         Monitor
                       </Link>
                     </Button>
-                    {(task.status === 'COMPLETED' || task.status === 'FAILED') && (
+                    {(['COMPLETED', 'FAILED', 'CANCELLED'] as TaskStatus[]).includes(task.status) && (
                       <Button size="sm" variant="default" className="bg-yellow-600 hover:bg-yellow-700" asChild>
                         <Link href={`/tasks/${task.task_id}/results`}>
                           <Trophy className="w-3 h-3 mr-1" />

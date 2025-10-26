@@ -23,7 +23,7 @@ export interface ApiTask {
   task_id: string;
   title: string;
   description: string;
-  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   created_at: string;
   updated_at: string;
   agents: unknown[];

@@ -15,7 +15,8 @@ import {
   Archive,
   ChevronLeft,
   ChevronRight,
-  Plus
+  Plus,
+  Snowflake
 } from 'lucide-react';
 
 const navigationItems = [
@@ -63,24 +64,27 @@ export function Sidebar() {
 
   return (
     <div className={cn(
-      'flex flex-col bg-card border-r transition-all duration-300',
+      'flex flex-col bg-card border-r border-border/50 transition-all duration-300 frost-border',
       sidebarCollapsed ? 'w-16' : 'w-64'
     )}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between p-4 border-b border-border/50">
         {!sidebarCollapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Command className="w-5 h-5 text-primary-foreground" />
+            <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center ice-glow relative">
+              <Snowflake className="w-5 h-5 text-primary-foreground animate-spin-slow" />
             </div>
-            <span className="font-bold text-lg">Agentic</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg winter-text tracking-wider">AGENTIC</span>
+              <span className="text-[8px] text-muted-foreground uppercase tracking-widest">Winter is Coming</span>
+            </div>
           </div>
         )}
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="ml-auto"
+          className="ml-auto hover:ice-glow"
         >
           {sidebarCollapsed ? (
             <ChevronRight className="w-4 h-4" />
@@ -91,16 +95,16 @@ export function Sidebar() {
       </div>
 
       {/* Quick Actions */}
-      <div className="p-4 border-b">
+      <div className="p-4 border-b border-border/50">
         {!sidebarCollapsed ? (
-          <Button asChild className="w-full">
+          <Button asChild className="w-full btn-winter">
             <Link href="/plans/new">
               <Plus className="w-4 h-4 mr-2" />
               New Mission
             </Link>
           </Button>
         ) : (
-          <Button asChild size="icon" className="w-full">
+          <Button asChild size="icon" className="w-full btn-winter">
             <Link href="/plans/new">
               <Plus className="w-4 h-4" />
             </Link>
@@ -118,10 +122,10 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent',
+                      ? 'bg-primary text-primary-foreground ice-glow shadow-lg'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent hover:border-primary/30 border border-transparent',
                     sidebarCollapsed && 'justify-center'
                   )}
                 >
@@ -140,14 +144,17 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-border/50">
         {!sidebarCollapsed && (
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground space-y-2">
             <div className="flex items-center justify-between">
-              <span>Active Agents</span>
-              <span className="bg-primary text-primary-foreground px-2 py-1 rounded">
+              <span className="uppercase tracking-wide">Active Agents</span>
+              <span className="bg-primary text-primary-foreground px-2 py-1 rounded-sm ice-glow font-bold">
                 0
               </span>
+            </div>
+            <div className="text-[10px] text-muted-foreground/60 italic text-center pt-2 border-t border-border/30">
+              &quot;The lone wolf dies, but the pack survives.&quot;
             </div>
           </div>
         )}

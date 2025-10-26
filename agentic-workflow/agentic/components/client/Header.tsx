@@ -19,35 +19,35 @@ export function Header() {
   const { theme, toggleTheme, activeAgents } = useUIStore();
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b bg-card">
+    <header className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-card/50 backdrop-blur-sm">
       {/* Left side - Status indicators */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 text-sm">
-          <Activity className="w-4 h-4 text-green-500" />
-          <span className="text-muted-foreground">System Status:</span>
-          <Badge variant="success">Operational</Badge>
+          <Activity className="w-4 h-4 text-primary animate-pulse" />
+          <span className="text-muted-foreground uppercase tracking-wide text-xs">System Status:</span>
+          <Badge variant="success" className="ice-glow">Operational</Badge>
         </div>
         
-        <div className="flex items-center gap-2 text-sm">
-          <Clock className="w-4 h-4 text-blue-500" />
-          <span className="text-muted-foreground">Active Tasks:</span>
-          <Badge variant="info">{activeAgents.length}</Badge>
+        <div className="flex items-center gap-2 text-sm border-l border-border/50 pl-4">
+          <Clock className="w-4 h-4 text-primary" />
+          <span className="text-muted-foreground uppercase tracking-wide text-xs">Active Tasks:</span>
+          <Badge variant="info" className="ice-pulse">{activeAgents.length}</Badge>
         </div>
         
-        <div className="flex items-center gap-2 text-sm">
-          <DollarSign className="w-4 h-4 text-yellow-500" />
-          <span className="text-muted-foreground">Today&apos;s Cost:</span>
+        <div className="flex items-center gap-2 text-sm border-l border-border/50 pl-4">
+          <DollarSign className="w-4 h-4 text-accent" />
+          <span className="text-muted-foreground uppercase tracking-wide text-xs">Today&apos;s Cost:</span>
           <Badge variant="warning">$12.50</Badge>
         </div>
       </div>
 
       {/* Right side - User actions */}
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="hover:ice-glow rounded-sm">
           <Bell className="w-4 h-4" />
         </Button>
         
-        <Button variant="ghost" size="icon" onClick={toggleTheme}>
+        <Button variant="ghost" size="icon" onClick={toggleTheme} className="hover:ice-glow rounded-sm">
           {theme === 'light' ? (
             <Moon className="w-4 h-4" />
           ) : (
@@ -55,14 +55,14 @@ export function Header() {
           )}
         </Button>
         
-        <div className="flex items-center gap-2 ml-4">
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+        <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border/50">
+          <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center ice-glow">
             <User className="w-4 h-4 text-primary-foreground" />
           </div>
           <div className="text-sm">
-            <div className="font-medium">{user?.name || 'User'}</div>
+            <div className="font-medium tracking-wide">{user?.name || 'Lord Commander'}</div>
             <div className="text-muted-foreground text-xs">
-              {user?.email || 'user@example.com'}
+              {user?.email || 'commander@thewall.north'}
             </div>
           </div>
         </div>

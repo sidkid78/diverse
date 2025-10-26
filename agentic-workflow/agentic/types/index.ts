@@ -38,7 +38,7 @@ export interface AgentConfig {
   export interface Task {
     task_id: string;
     plan_id: string;
-    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+    status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
     execution_environment_id?: string;
     agents: Agent[];
     created_at: string;

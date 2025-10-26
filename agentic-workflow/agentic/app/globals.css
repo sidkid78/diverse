@@ -44,72 +44,74 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
+  --radius: 0.25rem;
+  /* Winter is Coming - Light Theme (Dawn before the long night) */
+  --background: oklch(0.98 0.01 240);
+  --foreground: oklch(0.15 0.02 240);
+  --card: oklch(0.99 0.005 240);
+  --card-foreground: oklch(0.15 0.02 240);
+  --popover: oklch(0.99 0.005 240);
+  --popover-foreground: oklch(0.15 0.02 240);
+  --primary: oklch(0.35 0.08 240); /* Deep icy blue */
+  --primary-foreground: oklch(0.99 0.005 240);
+  --secondary: oklch(0.75 0.04 240); /* Frost blue */
+  --secondary-foreground: oklch(0.15 0.02 240);
+  --muted: oklch(0.92 0.02 240);
+  --muted-foreground: oklch(0.45 0.03 240);
+  --accent: oklch(0.65 0.12 220); /* Ice crystal blue */
+  --accent-foreground: oklch(0.99 0.005 240);
+  --destructive: oklch(0.55 0.18 30); /* Frozen blood red */
+  --border: oklch(0.85 0.02 240);
+  --input: oklch(0.92 0.02 240);
+  --ring: oklch(0.45 0.08 240);
+  --chart-1: oklch(0.55 0.15 240);
+  --chart-2: oklch(0.60 0.12 200);
+  --chart-3: oklch(0.50 0.10 260);
+  --chart-4: oklch(0.65 0.08 220);
+  --chart-5: oklch(0.45 0.12 280);
+  --sidebar: oklch(0.96 0.01 240);
+  --sidebar-foreground: oklch(0.20 0.02 240);
+  --sidebar-primary: oklch(0.35 0.08 240);
+  --sidebar-primary-foreground: oklch(0.99 0.005 240);
+  --sidebar-accent: oklch(0.92 0.02 240);
+  --sidebar-accent-foreground: oklch(0.20 0.02 240);
+  --sidebar-border: oklch(0.85 0.02 240);
+  --sidebar-ring: oklch(0.45 0.08 240);
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  /* Winter is Coming - Dark Theme (The Long Night) */
+  --background: oklch(0.12 0.02 240); /* Deep cold night */
+  --foreground: oklch(0.95 0.01 220); /* Stark white like snow */
+  --card: oklch(0.16 0.025 240); /* Slightly lighter than background */
+  --card-foreground: oklch(0.95 0.01 220);
+  --popover: oklch(0.14 0.025 240);
+  --popover-foreground: oklch(0.95 0.01 220);
+  --primary: oklch(0.55 0.15 220); /* Ice blue */
+  --primary-foreground: oklch(0.10 0.02 240);
+  --secondary: oklch(0.25 0.04 240); /* Dark slate */
+  --secondary-foreground: oklch(0.95 0.01 220);
+  --muted: oklch(0.22 0.03 240);
+  --muted-foreground: oklch(0.65 0.05 220);
+  --accent: oklch(0.45 0.12 210); /* Bright ice accent */
+  --accent-foreground: oklch(0.98 0.01 220);
+  --destructive: oklch(0.50 0.20 25); /* Cold fire red */
+  --border: oklch(0.25 0.04 240 / 60%);
+  --input: oklch(0.20 0.03 240 / 80%);
+  --ring: oklch(0.55 0.15 220);
+  --chart-1: oklch(0.50 0.18 220);
+  --chart-2: oklch(0.55 0.15 200);
+  --chart-3: oklch(0.45 0.16 260);
+  --chart-4: oklch(0.60 0.14 180);
+  --chart-5: oklch(0.42 0.18 280);
+  --sidebar: oklch(0.10 0.02 240); /* Darker than background */
+  --sidebar-foreground: oklch(0.85 0.02 220);
+  --sidebar-primary: oklch(0.55 0.15 220);
+  --sidebar-primary-foreground: oklch(0.10 0.02 240);
+  --sidebar-accent: oklch(0.20 0.03 240);
+  --sidebar-accent-foreground: oklch(0.95 0.01 220);
+  --sidebar-border: oklch(0.25 0.04 240 / 50%);
+  --sidebar-ring: oklch(0.55 0.15 220);
 }
 
 @layer base {
@@ -118,11 +120,141 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: 
+      radial-gradient(at 0% 0%, oklch(0.15 0.04 240 / 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, oklch(0.15 0.04 220 / 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, oklch(0.15 0.04 260 / 0.06) 0px, transparent 50%);
+  }
+  
+  /* Frost effect on cards */
+  .dark body {
+    background-image: 
+      radial-gradient(at 0% 0%, oklch(0.20 0.08 240 / 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, oklch(0.20 0.08 220 / 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, oklch(0.20 0.08 260 / 0.1) 0px, transparent 50%);
   }
 }
 
 @layer components {
   .usage-bar {
     height: var(--bar-height, 20px);
+  }
+  
+  /* Winter-themed frost border effect */
+  .frost-border {
+    position: relative;
+    border: 1px solid oklch(0.45 0.12 220 / 0.3);
+    box-shadow: 
+      0 0 20px oklch(0.55 0.15 220 / 0.15),
+      inset 0 0 20px oklch(0.55 0.15 220 / 0.08);
+  }
+  
+  /* Ice glow effect for primary elements */
+  .ice-glow {
+    box-shadow: 
+      0 0 10px oklch(0.55 0.15 220 / 0.3),
+      0 0 20px oklch(0.55 0.15 220 / 0.15),
+      0 0 30px oklch(0.55 0.15 220 / 0.1);
+  }
+  
+  /* Stark winter text effect */
+  .winter-text {
+    text-shadow: 
+      0 0 10px oklch(0.55 0.15 220 / 0.4),
+      0 0 20px oklch(0.55 0.15 220 / 0.2);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Frozen glass effect */
+  .glass-frost {
+    background: oklch(0.16 0.025 240 / 0.6);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid oklch(0.55 0.15 220 / 0.2);
+  }
+  
+  /* Winter storm animation */
+  @keyframes winter-storm {
+    0%, 100% {
+      box-shadow: 
+        0 0 10px oklch(0.55 0.15 220 / 0.2),
+        0 0 20px oklch(0.55 0.15 220 / 0.1);
+    }
+    50% {
+      box-shadow: 
+        0 0 15px oklch(0.55 0.15 220 / 0.3),
+        0 0 30px oklch(0.55 0.15 220 / 0.15);
+    }
+  }
+  
+  .winter-storm {
+    animation: winter-storm 3s ease-in-out infinite;
+  }
+  
+  /* Slow spin for snowflake */
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+  
+  /* Icy border pulse */
+  @keyframes ice-pulse {
+    0%, 100% {
+      border-color: oklch(0.45 0.12 220 / 0.3);
+    }
+    50% {
+      border-color: oklch(0.55 0.15 220 / 0.6);
+    }
+  }
+  
+  .ice-pulse {
+    animation: ice-pulse 2s ease-in-out infinite;
+  }
+  
+  /* Sharper, more angular scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: oklch(0.16 0.025 240);
+    border-left: 1px solid oklch(0.25 0.04 240 / 0.5);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.35 0.08 240);
+    border: 1px solid oklch(0.45 0.12 220 / 0.3);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.45 0.12 220);
+    box-shadow: 0 0 10px oklch(0.55 0.15 220 / 0.4);
+  }
+  
+  /* Winter button hover effects */
+  .btn-winter {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-winter:hover {
+    box-shadow: 
+      0 0 15px oklch(0.55 0.15 220 / 0.4),
+      0 0 30px oklch(0.55 0.15 220 / 0.2);
+    transform: translateY(-1px);
+  }
+  
+  .btn-winter:active {
+    transform: translateY(0);
   }
 }
