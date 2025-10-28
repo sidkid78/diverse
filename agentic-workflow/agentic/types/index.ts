@@ -185,3 +185,18 @@ export interface AgentConfig {
   
   export type ModelPreference = keyof typeof MODEL_OPTIONS;
   
+export interface PlanEntity {
+  plan_id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  author: string;
+  tags: string[];
+  steps: PlanStep[];
+  context_files: string[];
+  ai_docs: AIDoc[];
+  estimated_cost: number;
+  estimated_duration: number;
+  success_criteria: string[];
+}

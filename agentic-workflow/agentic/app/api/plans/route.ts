@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Plan } from '@/types';
+import { PlanEntity } from '@/types';
 
 // Mock plans database
 const mockPlans = [
@@ -202,18 +202,9 @@ export async function POST(request: NextRequest) {
       success_criteria: body.success_criteria || []
     };
 
-    // Add to mock database
-    mockPlans.push(newPlan as unknown as Plan);
-
-    return NextResponse.json({
-      plan: newPlan,
-      message: 'Plan created successfully'
-    }, { status: 201 });
+    return NextResponse.json(newPlan as unknown as unknown as unknown as PlanEntity, { status: 201 });
   } catch (error) {
     console.error('Error creating plan:', error);
-    return NextResponse.json(
-      { error: 'Failed to create plan' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create plan' }, { status: 500 });
   }
 }

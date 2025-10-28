@@ -14,13 +14,15 @@ export function ThemeProvider({
   children, 
   defaultTheme = 'dark',
 }: ThemeProviderProps) {
-  const { theme, setTheme } = useUIStore();
+  const { theme, toggleTheme } = useUIStore();
 
   React.useEffect(() => {
     // Set default theme on mount if not already set
-    if (!theme || theme === 'system') {
-      setTheme(defaultTheme);
+    if (!theme) {
+      toggleTheme();
     }
+   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {

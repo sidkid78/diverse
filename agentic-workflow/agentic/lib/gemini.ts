@@ -1,98 +1,148 @@
-// lib/gemini.ts
+/**
+ * Google Gemini API Integration
+ * Provides type-safe access to Gemini models using the modern @google/genai SDK
+ */
+
 import { GoogleGenAI } from '@google/genai';
-import type { GenerateContentConfig } from '@google/genai';
-import { AgentConfig } from '../types';
+import type { ModelPreference } from '@/types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+if (!GEMINI_API_KEY) {
+  console.warn('⚠️ GEMINI_API_KEY not found. AI features will be disabled.');
+}
 
-export class GeminiAgent {
-  private config: AgentConfig;
-  private metrics: {
-    tasks_completed: number;
-    avg_completion_time: number;
-    total_cost: number;
-    success_rate: number;
-  };
+const ai = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
-  constructor(config: AgentConfig) {
-    this.config = config;
-    this.metrics = {
-      tasks_completed: 0,
-      avg_completion_time: 0,
-      total_cost: 0,
-      success_rate: 100
-    };
+/**
+ * Model configurations with generation parameters
+ */
+export const MODEL_CONFIGS = {
+  'gemini-2.5-pro': {
+    temperature: 0.7,
+    maxOutputTokens: 8192,
+    topP: 0.95,
+    topK: 40,
+  },
+  'gemini-2.5-flash': {
+    temperature: 0.9,
+    maxOutputTokens: 8192,
+    topP: 0.95,
+    topK: 40,
+  },
+  'gemini-2.5-flash-lite': {
+    temperature: 0.9,
+    maxOutputTokens: 4096,
+    topP: 0.95,
+    topK: 40,
+  },
+  'gemini-2.0-pro': {
+    temperature: 0.4,
+    maxOutputTokens: 4096,
+    topP: 0.95,
+    topK: 40,
+  },
+} as const;
+
+/**
+ * Get the Gemini AI client
+ */
+export function getClient() {
+  if (!ai) {
+    throw new Error('Gemini API key not configured. Please set GEMINI_API_KEY environment variable.');
   }
+  return ai;
+}
 
-  async executeTask(task: string): Promise<{
-    result: string;
-    duration: number;
-    success: boolean;
-    cost: number;
-  }> {
-    const startTime = Date.now();
-    
-    try {
-      const prompt = `${this.config.system_prompt}\n\nTask: ${task}`;
-      
-      const response = await ai.models.generateContent({
-        model: this.config.model,
-        contents: prompt,
-        config: {
-          temperature: 0.7,
-          maxOutputTokens: 2048,
-        } as GenerateContentConfig
-      });
-      
-      const duration = (Date.now() - startTime) / 1000;
-      const cost = this.calculateCost(response.text?.length || 0, duration, prompt.length);
-      
-      // Update metrics
-      this.updateMetrics(duration, cost, true);
-      
-      return {
-        result: response.text || '',
-        duration,
-        success: true,
-        cost
-      };
-    } catch (error) {
-      const duration = (Date.now() - startTime) / 1000;
-      this.updateMetrics(duration, 0, false);
-      
-      return {
-        result: `Error: ${error}`,
-        duration,
-        success: false,
-        cost: 0
-      };
+
+
+/**
+ * Generate content with streaming support
+ */
+export async function* generateContentStream(
+  model: ModelPreference,
+  prompt: string,
+  systemInstruction?: string
+): AsyncGenerator<string> {
+  const client = getClient();
+
+  try {
+    const baseConfig = MODEL_CONFIGS[model];
+    const config = systemInstruction
+      ? {
+          ...baseConfig,
+          systemInstruction,
+        }
+      : baseConfig;
+
+    const response = await client.models.generateContent({
+      model,
+      contents: prompt,
+      config,
+    });
+
+    // For streaming, we'll yield the full response for now
+    // Note: The Google GenAI SDK's streaming API may differ slightly
+    if (response.text) {
+      yield response.text;
     }
+  } catch (error) {
+    console.error('Gemini streaming error:', error);
+    throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+}
 
-  private calculateCost(outputLength: number, duration: number, inputLength: number): number {
-    // Rough cost estimation based on Gemini 2.0 pricing
-    const baseRate = this.config.model.includes('thinking') ? 0.003 : 0.002;
-    return ((outputLength + inputLength) / 1000) * baseRate;
-  }
+/**
+ * Generate content without streaming
+ */
+export async function generateContent(
+  model: ModelPreference,
+  prompt: string,
+  systemInstruction?: string
+): Promise<string> {
+  const client = getClient();
 
-  private updateMetrics(duration: number, cost: number, success: boolean) {
-    const totalTasks = this.metrics.tasks_completed;
-    this.metrics.avg_completion_time = 
-      (this.metrics.avg_completion_time * totalTasks + duration) / (totalTasks + 1);
-    this.metrics.tasks_completed++;
-    this.metrics.total_cost += cost;
-    
-    // Update success rate
-    const successfulTasks = Math.round((this.metrics.success_rate / 100) * totalTasks);
-    this.metrics.success_rate = 
-      ((successfulTasks + (success ? 1 : 0)) / this.metrics.tasks_completed) * 100;
-  }
+  try {
+    const baseConfig = MODEL_CONFIGS[model];
+    const config = systemInstruction
+      ? {
+          ...baseConfig,
+          systemInstruction,
+        }
+      : baseConfig;
 
-  getMetrics() {
-    return { ...this.metrics };
-  }
+    const response = await client.models.generateContent({
+      model,
+      contents: prompt,
+      config,
+    });
 
-  getConfig() {
-    return { ...this.config };
+    return response.text || '';
+  } catch (error) {
+    console.error('Gemini generation error:', error);
+    throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+}
+
+/**
+ * Validate API key by making a simple test request
+ */
+export async function validateApiKey(): Promise<boolean> {
+  if (!ai) return false;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: 'Hello',
+    });
+    return !!response.text;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if Gemini is configured
+ */
+export function isGeminiConfigured(): boolean {
+  return !!GEMINI_API_KEY;
 }

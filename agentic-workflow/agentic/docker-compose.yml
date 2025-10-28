@@ -7,15 +7,20 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: agentic-workflow
-    image: sidkid78/agentic-workflow:latest
+    image: sidkid1978/agentic-workflow:latest
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
-      # Add your environment variables here
-      # - GEMINI_API_KEY=${GEMINI_API_KEY}
-      # - GITHUB_TOKEN=${GITHUB_TOKEN}
+      # Required: Gemini API Key (get from https://aistudio.google.com/apikey)
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      # Optional: GitHub Token (get from https://github.com/settings/tokens)
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      # Optional: Application settings
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-gemini-2.5-flash}
+      - MAX_CONCURRENT_AGENTS=${MAX_CONCURRENT_AGENTS:-5}
+      - DEFAULT_REPO=${DEFAULT_REPO:-https://github.com/sidkid78/diverse.git}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
