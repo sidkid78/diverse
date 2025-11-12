@@ -2719,8 +2719,9 @@ With the theme infrastructure in place, I'll now refine the styling of the main 
 
 First, I'll update the SidebarNav to have cleaner link styling that responds to hover states.
 
-components/layout/SidebarNav.tsx (Updated)
+`components/layout/SidebarNav.tsx` (Updated)
 
+```typescript
 import { navigationItems } from "@/content/subAgentData";
 import { cn } from "@/lib/utils";
 
@@ -2741,10 +2742,12 @@ export function SidebarNav() {
     </nav>
   );
 }
+```
 Finally, I'll update the main page.tsx. I'm removing the generic @tailwindcss/typography (prose) class in favor of more deliberate and controlled styling on the headings and paragraphs. This gives a more polished, less "document-like" feel. The main content will be centered in a container with a max-width for optimal readability.
 
-app/page.tsx (Final Polished Version)
+`app/page.tsx` (Final Polished Version)
 
+```typescript
 import {
   ResizableHandle,
   ResizablePanel,
@@ -2884,6 +2887,7 @@ export default function Home() {
   );
 }
 Verification
+```
 With these changes, the application is now fully themed and polished:
 
 Theme Toggle: A sun/moon icon now appears in the header, allowing users to seamlessly switch between light, dark, dark, and system themes.
@@ -2911,10 +2915,11 @@ import { type ThemeProviderProps } from "next-themes/dist/types";
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
-components/theme-toggle.tsx
+
+`components/theme-toggle.tsx`
 
 This component will be the sun/moon icon button that allows users to switch themes.
-
+```typescript
 "use client";
 
 import * as React from "react";
@@ -2955,13 +2960,14 @@ export function ThemeToggle() {
     </DropdownMenu>
   );
 }
+```
 3. Update Global Styles and Tailwind Config
 Now we define the color variables for both light and dark themes in our CSS and configure Tailwind to use them. This is the core of Shadcn's theming system.
 
-app/globals.css
+`app/globals.css`
 
 Update this file to include the full set of color variables for light (:root) and dark themes.
-
+```css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -3055,9 +3061,10 @@ Update this file to include the full set of color variables for light (:root) an
   }
 }
 tailwind.config.ts
-
+```
 Update the config to reference these CSS variables. This makes Tailwind classes like bg-background and text-primary theme-aware.
 
+```css
 import type { Config } from "tailwindcss";
 
 const config = {
@@ -3151,13 +3158,15 @@ const config = {
 } satisfies Config;
 
 export default config;
+```
 4. Integrate Theming into the Application Layout
 We will now wrap our entire application in the ThemeProvider and add the ThemeToggle to the header. For better structure, we'll move the site-wide layout from page.tsx to layout.tsx.
 
-app/layout.tsx (Updated)
+`app/layout.tsx` (Updated)
 
 This file now contains the main structure, header, and theme provider.
 
+```typescript
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -3193,9 +3202,10 @@ export default function RootLayout({
   );
 }
 app/page.tsx (Refined)
-
+```
 The page.tsx file is now cleaner, containing only the page-specific layout and content. We also add the ThemeToggle to the header.
 
+```typescript
 import {
   ResizableHandle,
   ResizablePanel,
@@ -3335,15 +3345,19 @@ export default function Home() {
     </div>
   );
 }
-5. Final Polish on Components
+```
+### 5. Final Polish on Components
+
 Finally, let's ensure the prose classes correctly invert for dark mode and the mobile sidebar navigation is clean.
 
-app/page.tsx (Styling Refinements):
+` app/page.tsx` (Styling Refinements):
+
 In the code above, note the change from prose-invert to dark:prose-invert. This is a key change that tells Tailwind to only apply the inverted prose styles when the dark class is present on the <html> tag.
 
-components/layout/SidebarNav.tsx (Styling Refinements):
+`components/layout/SidebarNav.tsx` (Styling Refinements):
 We can refine the active link styling to be more prominent and theme-aware.
 
+```typescript
 "use client";
 
 import { useEffect, useState } from "react";
@@ -3411,16 +3425,20 @@ export function SidebarNav() {
     </nav>
   );
 }
+```
 With these changes, the application is now fully themed, polished, and responsive, completing the project requirements.
 
 Metadata:
-
+```json
 {
   "subtask_id": "styling-and-theming",
   "title": "Finalize Styling and Theming",
   "expertise": "UI/UX Design, Frontend Development (CSS, Tailwind)"
 }
-Quality Assurance, Frontend Development Specialist
+```
+
+### Quality Assurance, Frontend Development Specialist
+
 Excellent, the application is fully built, styled, and themed. This final step involves a comprehensive review of the entire project to ensure quality, accuracy, and readiness for production, followed by clear instructions for deployment.
 
 1. Final Application Review
@@ -3507,7 +3525,8 @@ Import Project:
 
 From your Vercel dashboard, click "Add New..." and select "Project".
 The "Import Git Repository" screen will appear. Find the repository you want to deploy and click "Import". If you haven't connected your Git provider yet, Vercel will guide you through the process.
-Configure Project:
+
+### Configure Project:
 
 Vercel will automatically detect that you are deploying a Next.js application and pre-fill all the settings.
 Framework Preset: Should be Next.js.
@@ -3527,42 +3546,55 @@ Vercel will provide you with a public URL (e.g., your-project-name.vercel.app) w
 This concludes the project. We have successfully taken a complex text document, planned a structured web application, implemented it feature by feature using Next.js 15, Tailwind CSS v4, and Shadcn UI, and prepared it for a seamless deployment.
 
 Metadata:
-
+```json
 {
   "subtask_id": "review-and-deployment-prep",
-  "title": "Final Review and Deployment Preparation",
-  "expertise": "Quality Assurance, Frontend Development"
-}
-Results Integrator
+    "title": "Final Review and Deployment Preparation",
+    "expertise": "Quality Assurance, Frontend Development"
+  }
+```
+### Results Integrator
+
 Of course. Here is a comprehensive, synthesized implementation of the Claude Code Sub-Agents explainer application, built with Next.js 15, Tailwind CSS v4, and Shadcn UI.
 
-Executive Summary
+### Executive Summary
+
 This guide details the end-to-end creation of a polished, interactive web application that explains the concepts of Claude Code Sub-Agents from the provided text. The final product is a fully responsive, single-page application featuring:
 
-Structured Content: The complex source text is broken down into logical, easy-to-digest sections.
-Interactive Workflow Visualization: An animated diagram built with Framer Motion clearly illustrates the core operational flow of sub-agents.
-Modern UI/UX: A clean, professional design using Shadcn UI components, with a resizable sidebar on desktop and a slide-out menu on mobile.
-Theming: A seamless dark/light mode toggle allows users to choose their preferred theme.
-Deployment-Ready: The project is structured and configured for easy, one-click deployment on Vercel.
-The following sections provide the complete code and step-by-step instructions to build this application from the ground up.
+- Structured Content: The complex source text is broken down into logical, easy-to-digest sections.
+- Interactive Workflow Visualization: An animated diagram built with Framer Motion clearly illustrates the core operational flow of sub-agents.
+- Modern UI/UX: A clean, professional design using Shadcn UI components, with a resizable sidebar on desktop and a slide-out menu on mobile.
+- Theming: A seamless dark/light mode toggle allows users to choose their preferred theme.
+- Deployment-Ready: The project is structured and configured for easy, one-click deployment on Vercel.
+- The following sections provide the complete code and step-by-step instructions to build this application from the ground up.
 
-1. Project Setup and Configuration
+### 1. Project Setup and Configuration
+
 First, set up the Next.js 15 project with Tailwind CSS v4 and initialize Shadcn UI.
 
-1.1. Create the Next.js Project
+### 1.1. Create the Next.js Project
 
+```bash
 npx create-next-app@latest claude-subagents-explainer
-Use the following options: TypeScript: Yes, ESLint: Yes, Tailwind CSS: No (we'll install v4 manually), src/ directory: No, App Router: Yes, customize import alias: Yes (@/*).
+```
 
-1.2. Install and Configure Tailwind CSS v4
+Use the following options: TypeScript: Yes, ESLint: Yes, Tailwind CSS: No (we'll  install v4 manually), src/ directory: No, App Router: Yes, customize import alias: Yes (@/*).
 
+### 1.2. Install and Configure Tailwind CSS v4
+
+```bash
 cd claude-subagents-explainer
+```
+
+```bash
 npm install tailwindcss@next postcss @tailwindcss/postcss
 npx tailwindcss init --postcss
-Rename tailwind.config.js to tailwind.config.ts and update it.
+```
+Rename `tailwind.config.js` to `tailwind.config.ts` and update it.
 
-tailwind.config.ts
+`tailwind.config.ts`
 
+```typescript
 import type { Config } from "tailwindcss"
 
 const config = {
@@ -3637,20 +3669,27 @@ const config = {
 } satisfies Config
 
 export default config
-1.3. Initialize Shadcn UI
+```
+### 1.3. Initialize Shadcn UI
 
 Run the CLI to set up your UI library.
 
+```bash
 npx shadcn-ui@latest init
+```
 Choose Default style, Slate color, and accept the defaults for the remaining prompts. Then, add the necessary components for the layout:
 
+```bash
 npx shadcn-ui@latest add resizable sheet scroll-area button card dropdown-menu
-1.4. Update Global Styles
+```
+
+### 1.4. Update Global Styles
 
 Replace the content of app/globals.css with the Tailwind v4 directive and the CSS variables for theming.
 
-app/globals.css
 
+`app/globals.css`
+```css
 @import 'tailwindcss';
 
 @layer base {
@@ -3708,9 +3747,12 @@ app/globals.css
     @apply bg-background text-foreground;
   }
 }
-2. Structuring the Content
+```
+## 2. Structuring the Content
+
 Create a file to hold the parsed and structured content from the original text. This separates the data from the UI components.
 
+```typescript
 content/subAgentData.ts
 
 // Interfaces
@@ -3838,14 +3880,20 @@ export const subAgentData = {
     },
   ],
 };
-3. Building the UI Components
+```
+
+## 3. Building the UI Components
+
 Create the reusable React components that will render the structured content.
 
-3.1. Theme Provider and Toggle
+## 3.1. Theme Provider and Toggle
 
 Install next-themes and create the components to manage light/dark mode.
 
+```bash
 npm install next-themes
+```
+```typescript
 components/theme-provider.tsx
 
 "use client"
@@ -3892,10 +3940,13 @@ export function ThemeToggle() {
     </DropdownMenu>
   )
 }
-3.2. Sidebar Navigation
+```
+
+## 3.2. Sidebar Navigation
 
 This component displays the navigation links and will be used in both the desktop sidebar and mobile menu.
 
+```typescript
 components/layout/SidebarNav.tsx
 
 "use client";
@@ -3920,11 +3971,15 @@ export function SidebarNav() {
     </nav>
   );
 }
-3.3. Interactive Workflow Visualization
+```
+## 3.3. Interactive Workflow Visualization
 
 This is the key interactive component. Install framer-motion for animations.
 
+```bash
 npm install framer-motion
+```
+```typescript
 components/workflow-visualization.tsx
 
 "use client";

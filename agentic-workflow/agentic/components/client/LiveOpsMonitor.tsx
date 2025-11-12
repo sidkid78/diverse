@@ -28,81 +28,9 @@ interface LiveOpsMonitorProps {
   taskId: string;
 }
 
-// Mock data for development
-const mockTask = {
-  task_id: 'task-1',
-  plan_id: 'plan-1',
-  title: 'Authentication Refactor',
-  description: 'Refactor user authentication flow to use JWT instead of session cookies',
-  status: 'IN_PROGRESS' as const,
-  agents: [
-    {
-      agent_id: 'agent-1',
-      name: 'Code-Analyzer',
-      status: 'RUNNING' as const,
-      model_preference: 'gemini-2.5-flash' as const,
-      specialization: ['analysis', 'refactoring'],
-      task_id: 'task-1',
-      created_at: new Date(Date.now() - 3600000).toISOString()
-    },
-    {
-      agent_id: 'agent-2',
-      name: 'Test-Writer',
-      status: 'PENDING' as const,
-      model_preference: 'gemini-2.0-pro' as const,
-      specialization: ['testing', 'unit-tests'],
-      task_id: 'task-1',
-      created_at: new Date(Date.now() - 3000000).toISOString()
-    }
-  ],
-  created_at: new Date(Date.now() - 3600000).toISOString(),
-  updated_at: new Date().toISOString(),
-  metrics: {
-    elapsed_time: 3600,
-    estimated_cost: 1250,
-    files_touched: 8,
-    tests_passed: 12,
-    tests_failed: 0
-  }
-};
-
-const mockEvents = [
-  {
-    event_id: 'event-1',
-    agent_id: 'agent-1',
-    task_id: 'task-1',
-    timestamp: new Date(Date.now() - 300000).toISOString(), // 5 min ago
-    event_type: 'TOOL_CALL' as const,
-    payload: { tool_name: 'read', file_path: 'src/auth/controller.ts' }
-  },
-  {
-    event_id: 'event-2',
-    agent_id: 'agent-1',
-    task_id: 'task-1',
-    timestamp: new Date(Date.now() - 240000).toISOString(), // 4 min ago
-    event_type: 'MODEL_CALL' as const,
-    payload: { model: 'gemini-2.5-flash' }
-  },
-  {
-    event_id: 'event-3',
-    agent_id: 'agent-1',
-    task_id: 'task-1',
-    timestamp: new Date(Date.now() - 180000).toISOString(), // 3 min ago
-    event_type: 'TOOL_CALL' as const,
-    payload: { tool_name: 'edit', file_path: 'src/auth/controller.ts' }
-  },
-  {
-    event_id: 'event-4',
-    agent_id: 'agent-1',
-    task_id: 'task-1',
-    timestamp: new Date(Date.now() - 120000).toISOString(), // 2 min ago
-    event_type: 'STATUS_CHANGE' as const,
-    payload: { old_status: 'RUNNING', new_status: 'RUNNING' }
-  }
-];
-
 export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
   const {
+    task,
     eventStream,
     selectedAgent,
     isPaused,
@@ -114,31 +42,40 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
 
   const [isConnected, setIsConnected] = useState(false);
 
-  // Initialize with mock data
+  // Initial fetch of task status
   useEffect(() => {
-    setTask(mockTask);
-    mockEvents.forEach(event => addEventLog(event));
-    setIsConnected(true);
-  }, [setTask, addEventLog]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/tasks/${taskId}/status`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        if (data?.task) setTask(data.task);
+        if (Array.isArray(data?.events)) data.events.forEach((e: any) => addEventLog(e));
+      } catch {}
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [taskId, setTask, addEventLog]);
 
-  // Simulate real-time events (in production, this would be SSE)
+  // Live stream via SSE
   useEffect(() => {
-    if (isPaused) return;
-
-    const interval = setInterval(() => {
-      const newEvent = {
-        event_id: `event-${Date.now()}`,
-        agent_id: 'agent-1',
-        task_id: taskId,
-        timestamp: new Date().toISOString(),
-        event_type: 'MODEL_CALL' as const,
-        payload: { model: 'gemini-2.5-flash', action: 'thinking' }
-      };
-      addEventLog(newEvent);
-    }, 10000); // Add new event every 10 seconds
-
-    return () => clearInterval(interval);
-  }, [isPaused, taskId, addEventLog]);
+    const es = new EventSource(`/api/tasks/${taskId}/stream`);
+    es.onopen = () => setIsConnected(true);
+    es.onerror = () => setIsConnected(false);
+    es.onmessage = (ev) => {
+      if (isPaused) return;
+      try {
+        const parsed = JSON.parse(ev.data);
+        // Skip connect messages
+        if (parsed?.type === 'connected') return;
+        addEventLog(parsed);
+      } catch {}
+    };
+    return () => es.close();
+  }, [taskId, isPaused, addEventLog]);
 
   const handlePauseTask = () => {
     togglePause();
@@ -169,8 +106,8 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">{mockTask.title}</h1>
-            <p className="text-muted-foreground">{mockTask.description}</p>
+            <h1 className="text-2xl font-bold">{task?.title || 'Task'}</h1>
+            <p className="text-muted-foreground">{task?.description || 'No description'}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -178,7 +115,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
             <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
             {isConnected ? 'Connected' : 'Disconnected'}
           </div>
-          <StatusBadge status={mockTask.status} />
+          <StatusBadge status={(task?.status as any) || 'PENDING'} />
         </div>
       </div>
 
@@ -195,7 +132,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
                 size="sm"
                 variant="outline"
                 onClick={handlePauseTask}
-                disabled={mockTask.status !== 'IN_PROGRESS'}
+                disabled={task?.status !== 'IN_PROGRESS'}
               >
                 {isPaused ? (
                   <>
@@ -213,7 +150,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
                 size="sm"
                 variant="outline"
                 onClick={handleStopTask}
-                disabled={mockTask.status !== 'IN_PROGRESS'}
+                disabled={task?.status !== 'IN_PROGRESS'}
                 className="text-red-600 hover:text-red-700"
               >
                 <Square className="w-3 h-3 mr-1" />
@@ -238,7 +175,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-blue-500" />
               <div>
-                <div className="font-medium">{formatDuration(mockTask.metrics.elapsed_time)}</div>
+                <div className="font-medium">{formatDuration(task?.metrics?.elapsed_time || 0)}</div>
                 <div className="text-sm text-muted-foreground">Elapsed Time</div>
               </div>
             </div>
@@ -246,7 +183,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
             <div className="flex items-center gap-3">
               <DollarSign className="w-5 h-5 text-green-500" />
               <div>
-                <div className="font-medium">{formatCost(mockTask.metrics.estimated_cost)}</div>
+                <div className="font-medium">{formatCost(task?.metrics?.estimated_cost || 0)}</div>
                 <div className="text-sm text-muted-foreground">Estimated Cost</div>
               </div>
             </div>
@@ -255,7 +192,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
               <Users className="w-5 h-5 text-purple-500" />
               <div>
                 <div className="font-medium">
-                  {mockTask.agents.filter(a => a.status === 'RUNNING').length}/{mockTask.agents.length}
+                  {(task?.agents || []).filter(a => a.status === 'RUNNING').length}/{task?.agents?.length || 0}
                 </div>
                 <div className="text-sm text-muted-foreground">Active Agents</div>
               </div>
@@ -264,7 +201,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
             <div className="flex items-center gap-3">
               <FileText className="w-5 h-5 text-orange-500" />
               <div>
-                <div className="font-medium">{mockTask.metrics.files_touched}</div>
+                <div className="font-medium">{task?.metrics?.files_touched || 0}</div>
                 <div className="text-sm text-muted-foreground">Files Modified</div>
               </div>
             </div>
@@ -277,7 +214,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
         <div className="col-span-8 space-y-4">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">Agent Swimlanes</h2>
-            <Badge variant="info">{mockTask.agents.length} agents</Badge>
+            <Badge variant="info">{task?.agents?.length || 0} agents</Badge>
             {isPaused && (
               <Badge variant="warning" className="flex items-center gap-1">
                 <Pause className="w-3 h-3" />
@@ -287,7 +224,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
           </div>
           
           <div className="space-y-4 h-full overflow-y-auto">
-            {mockTask.agents.map((agent) => (
+            {(task?.agents || []).map((agent) => (
               <AgentSwimlane
                 key={agent.agent_id}
                 agent={agent}
@@ -305,7 +242,7 @@ export function LiveOpsMonitor({ taskId }: LiveOpsMonitorProps) {
         <div className="col-span-4">
           {selectedAgent ? (
             <AgentInspector
-              agent={mockTask.agents.find(a => a.agent_id === selectedAgent)!}
+              agent={(task?.agents || []).find(a => a.agent_id === selectedAgent)!}
               events={eventStream.filter(e => e.agent_id === selectedAgent)}
               onClose={() => setSelectedAgent(undefined)}
             />

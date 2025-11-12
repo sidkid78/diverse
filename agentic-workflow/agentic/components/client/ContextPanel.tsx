@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,20 +21,46 @@ import {
 export function ContextPanel() {
   const { selectedContext, setSelectedContext } = useMissionControlStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [codebaseFiles, setCodebaseFiles] = useState<string[]>([]);
+  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [filesError, setFilesError] = useState<string | null>(null);
+  // Use public env var if provided; otherwise default to your connected repo
+  const defaultRepoUrl = (process.env.NEXT_PUBLIC_DEFAULT_REPO as string) || 'https://github.com/sidkid78/test1';
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchFiles() {
+      setLoadingFiles(true);
+      setFilesError(null);
+      try {
+        const res = await fetch(`/api/github/files?url=${encodeURIComponent(defaultRepoUrl)}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        if (isMounted) {
+          setCodebaseFiles(Array.isArray(data.files) ? data.files : []);
+        }
+      } catch (e) {
+        if (isMounted) {
+          setFilesError(e instanceof Error ? e.message : 'Failed to load files');
+          setCodebaseFiles([]);
+        }
+      } finally {
+        if (isMounted) setLoadingFiles(false);
+      }
+    }
+    fetchFiles();
+    return () => {
+      isMounted = false;
+    };
+  }, [defaultRepoUrl]);
 
   // Mock data for development
-  const mockCodebaseFiles = [
-    'src/auth/controller.ts',
-    'src/auth/middleware.ts',
-    'src/auth/service.ts',
-    'src/models/user.ts',
-    'src/routes/auth.ts',
-    'tests/auth.test.ts',
-    'docs/auth-flow.md',
-    'package.json',
-    'README.md'
-  ];
-
   const mockAIDocs = [
     {
       id: 'arch-1',
@@ -75,7 +101,7 @@ export function ContextPanel() {
     setSelectedContext(selectedContext.filter(f => f !== filePath));
   };
 
-  const filteredCodebaseFiles = mockCodebaseFiles.filter(file =>
+  const filteredCodebaseFiles = codebaseFiles.filter(file =>
     file.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -152,30 +178,45 @@ export function ContextPanel() {
         </TabsList>
 
         <TabsContent value="codebase" className="mt-3">
-          <div className="space-y-1 max-h-48 overflow-y-auto">
-            {filteredCodebaseFiles.map((filePath) => (
-              <div
-                key={filePath}
-                className="flex items-center gap-2 p-2 rounded hover:bg-accent cursor-pointer text-xs"
-                onClick={() => handleToggleFile(filePath)}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedContext.includes(filePath)}
-                  onChange={() => {}}
-                  className="w-3 h-3"
-                  aria-label={`Select ${filePath}`}
-                />
-                {getFileIcon(filePath)}
-                <span className="flex-1 truncate">{filePath}</span>
-              </div>
-            ))}
-            
-            {filteredCodebaseFiles.length === 0 && (
-              <div className="text-center py-4 text-muted-foreground text-xs">
-                No files found
-              </div>
-            )}
+          <div className="space-y-2">
+            <div className="text-[10px] text-muted-foreground">
+              Repo: <span className="font-mono">{defaultRepoUrl}</span>
+            </div>
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {loadingFiles && (
+                <div className="text-center py-4 text-muted-foreground text-xs">
+                  Loading files...
+                </div>
+              )}
+              {!loadingFiles && filesError && (
+                <div className="text-center py-4 text-red-500 text-xs">
+                  {filesError}
+                </div>
+              )}
+              {!loadingFiles && !filesError && filteredCodebaseFiles.map((filePath) => (
+                <div
+                  key={filePath}
+                  className="flex items-center gap-2 p-2 rounded hover:bg-accent cursor-pointer text-xs"
+                  onClick={() => handleToggleFile(filePath)}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedContext.includes(filePath)}
+                    onChange={() => {}}
+                    className="w-3 h-3"
+                    aria-label={`Select ${filePath}`}
+                  />
+                  {getFileIcon(filePath)}
+                  <span className="flex-1 truncate">{filePath}</span>
+                </div>
+              ))}
+              
+              {!loadingFiles && !filesError && filteredCodebaseFiles.length === 0 && (
+                <div className="text-center py-4 text-muted-foreground text-xs">
+                  No files found
+                </div>
+              )}
+            </div>
           </div>
         </TabsContent>
 

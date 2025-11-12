@@ -6,6 +6,7 @@
 export { AgentOrchestrator, agentOrchestrator } from './AgentOrchestrator';
 export { PlanExecutor, planExecutor } from './PlanExecutor';
 export { EventLogger, eventLogger } from './EventLogger';
+export { default as agentToolsManager } from '@/lib/tools';
 
 // Re-export types
 export type { AgentConfig } from './AgentOrchestrator';

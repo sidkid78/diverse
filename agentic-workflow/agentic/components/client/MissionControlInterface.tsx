@@ -9,8 +9,7 @@ import { PlanEditor } from '@/components/client/PlanEditor';
 import { AgentWorkforcePanel } from '@/components/client/AgentWorkforcePanel';
 import { ContextPanel } from '@/components/client/ContextPanel';
 import { useMissionControlStore } from '@/lib/store';
-import { apiClient } from '@/lib/api';
-import { generatePlanSteps } from '@/lib/aiPlanGenerator';
+import { apiClient } from '@/lib/apiClient';
 import { 
   Play,  
   Settings, 
@@ -46,20 +45,18 @@ export function MissionControlInterface() {
 
     setIsExecuting(true);
     try {
-      // Create the task
+      // Create the task with required fields for /api/tasks POST
       const response = await apiClient.createTask({
-        plan_id: 'temp-plan-id', // In a real implementation, we'd save the plan first
-        initial_context: goal,
-        model_preference: agents[0]?.model_preference || 'gemini-2.5-flash',
-        execution_environment: {
-          type: 'git',
-          repo_url: 'https://github.com/sidkid78/agentic.git',
-          branch: 'main'
-        }
+        title: goal,
+        description: plan.map((s) => s.instruction).join(', '),
+        agents,
+        run_mode: 'single',
+        parallel_runs: 1,
+        estimated_cost: 0,
       });
 
       // Redirect to Live Ops view
-      window.location.href = `/tasks/${response.task_id}`;
+      window.location.href = `/tasks/${response.task.task_id}`;
     } catch (error) {
       console.error('Failed to execute plan:', error);
       alert('Failed to execute plan. Please try again.');
@@ -77,24 +74,28 @@ export function MissionControlInterface() {
     setIsExecuting(true);
     
     try {
-      // Generate AI-powered plan steps based on the mission goal
-      const generatedSteps = await generatePlanSteps(goal);
+      // Generate AI-powered plan using real Gemini API
+      const response = await apiClient.generatePlan({
+        mission_statement: goal,
+        repo_url: 'https://github.com/sidkid78/test1', // Use the connected GitHub repo
+        model_preference: 'gemini-2.5-flash',
+      });
       
       // Clear existing steps and add the generated ones
       clearPlan();
-      generatedSteps.forEach((step, index) => {
+      response.plan.forEach((step, index) => {
         setTimeout(() => {
           addPlanStep({
-            instruction: step.instruction,
-            assigned_agents: step.suggested_agents,
-            context_files: step.context_files
+            instruction: step.step_description,
+            assigned_agents: [step.agent_name],
+            context_files: index === 0 ? response.context_files.slice(0, 5) : []
           });
         }, index * 200); // Stagger the additions for a nice effect
       });
       
     } catch (error) {
       console.error('Failed to generate plan:', error);
-      alert('Failed to generate plan. Please try again.');
+      alert(`Failed to generate plan: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsExecuting(false);
     }

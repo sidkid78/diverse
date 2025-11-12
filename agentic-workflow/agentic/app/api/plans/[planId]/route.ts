@@ -1,42 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Mock plans database (same as in route.ts - in production, this would be shared)
-const mockPlans = [
-  {
-    plan_id: 'plan-1',
-    name: 'JWT Authentication Migration',
-    description: 'Migrate from session-based to JWT authentication',
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-    updated_at: new Date().toISOString(),
-    author: 'Sarah Chen',
-    tags: ['authentication', 'jwt', 'migration', 'security'],
-    steps: [
-      {
-        step_id: 'step-1',
-        title: 'Analysis Phase',
-        description: 'Analyze current session-based authentication implementation',
-        estimated_duration: 1800,
-        agent_requirements: ['analysis', 'security-review']
-      },
-      {
-        step_id: 'step-2',
-        title: 'JWT Implementation',
-        description: 'Implement JWT token generation and validation',
-        estimated_duration: 3600,
-        agent_requirements: ['backend-development', 'security']
-      }
-    ],
-    context_files: [
-      { file_path: 'src/auth/', description: 'Current authentication logic' }
-    ],
-    ai_docs: [
-      { doc_id: 'jwt-best-practices', title: 'JWT Security Best Practices' }
-    ],
-    estimated_cost: 2500,
-    estimated_duration: 9600,
-    success_criteria: ['All existing tests pass']
-  }
-];
+import { prisma } from '@/lib/db';
 
 // GET /api/plans/[planId] - Get a specific plan
 export async function GET(
@@ -45,15 +8,40 @@ export async function GET(
 ) {
   try {
     const { planId } = await params;
-    
-    const plan = mockPlans.find(p => p.plan_id === planId);
-    
-    if (!plan) {
+
+    const p = await prisma.plan.findUnique({
+      where: { id: planId },
+      include: { steps: true },
+    });
+
+    if (!p) {
       return NextResponse.json(
         { error: 'Plan not found' },
         { status: 404 }
       );
     }
+
+    const plan = {
+      plan_id: p.id,
+      name: p.title,
+      description: p.description,
+      created_at: p.createdAt.toISOString(),
+      updated_at: p.updatedAt.toISOString(),
+      steps: p.steps
+        .sort((a, b) => a.order - b.order)
+        .map((s) => ({
+          step_id: s.id,
+          title: `Step ${s.order}`,
+          description: s.instruction,
+          estimated_duration: 0,
+          agent_requirements: s.assignedAgents,
+        })),
+      context_files: [],
+      ai_docs: [],
+      estimated_cost: 0,
+      estimated_duration: 0,
+      success_criteria: [],
+    };
 
     return NextResponse.json({ plan });
   } catch (error) {
@@ -73,36 +61,46 @@ export async function PUT(
   try {
     const { planId } = await params;
     const body = await request.json();
-    
-    const planIndex = mockPlans.findIndex(p => p.plan_id === planId);
-    
-    if (planIndex === -1) {
+
+    const exists = await prisma.plan.findUnique({ where: { id: planId } });
+    if (!exists) {
       return NextResponse.json(
         { error: 'Plan not found' },
         { status: 404 }
       );
     }
 
-    // Recalculate estimates if steps changed
-    if (body.steps) {
-      const estimated_duration = body.steps.reduce(
-        (sum: number, step: { estimated_duration?: number }) =>
-          sum + (step.estimated_duration ?? 0),
-        0
-      );
-      body.estimated_cost = Math.floor(estimated_duration * 0.25);
-      body.estimated_duration = estimated_duration;
-    }
-
-    // Update plan
-    mockPlans[planIndex] = {
-      ...mockPlans[planIndex],
-      ...body,
-      updated_at: new Date().toISOString()
-    };
+    const updated = await prisma.plan.update({
+      where: { id: planId },
+      data: {
+        title: body.name ?? undefined,
+        description: body.description ?? undefined,
+      },
+      include: { steps: true },
+    });
 
     return NextResponse.json({
-      plan: mockPlans[planIndex],
+      plan: {
+        plan_id: updated.id,
+        name: updated.title,
+        description: updated.description,
+        created_at: updated.createdAt.toISOString(),
+        updated_at: updated.updatedAt.toISOString(),
+        steps: updated.steps
+          .sort((a, b) => a.order - b.order)
+          .map((s) => ({
+            step_id: s.id,
+            title: `Step ${s.order}`,
+            description: s.instruction,
+            estimated_duration: 0,
+            agent_requirements: s.assignedAgents,
+          })),
+        context_files: [],
+        ai_docs: [],
+        estimated_cost: 0,
+        estimated_duration: 0,
+        success_criteria: [],
+      },
       message: 'Plan updated successfully'
     });
   } catch (error) {
@@ -121,18 +119,16 @@ export async function DELETE(
 ) {
   try {
     const { planId } = await params;
-    
-    const planIndex = mockPlans.findIndex(p => p.plan_id === planId);
-    
-    if (planIndex === -1) {
+
+    const exists = await prisma.plan.findUnique({ where: { id: planId } });
+    if (!exists) {
       return NextResponse.json(
         { error: 'Plan not found' },
         { status: 404 }
       );
     }
 
-    // Remove plan
-    mockPlans.splice(planIndex, 1);
+    await prisma.plan.delete({ where: { id: planId } });
 
     return NextResponse.json({
       message: 'Plan deleted successfully'
@@ -153,10 +149,18 @@ export async function POST(
 ) {
   try {
     const { planId } = await params;
+    
+    // Skip if this is the generate endpoint (should be handled by /api/plans/generate/route.ts)
+    if (planId === 'generate') {
+      return NextResponse.json(
+        { error: 'This endpoint should not handle generate requests' },
+        { status: 500 }
+      );
+    }
+    
     const body = await request.json();
-    
-    const plan = mockPlans.find(p => p.plan_id === planId);
-    
+
+    const plan = await prisma.plan.findUnique({ where: { id: planId } });
     if (!plan) {
       return NextResponse.json(
         { error: 'Plan not found' },
@@ -164,33 +168,50 @@ export async function POST(
       );
     }
 
-    // Create a task from the plan
-    const task = {
-      task_id: `task-${Date.now()}`,
-      plan_id: planId,
-      title: plan.name,
-      description: plan.description,
-      status: 'PENDING',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      agents: body.agents || [],
-      run_mode: body.run_mode || 'single',
-      parallel_runs: body.parallel_runs || 1,
-      metrics: {
-        elapsed_time: 0,
-        estimated_cost: plan.estimated_cost,
-        files_touched: 0,
-        tests_passed: 0,
-        tests_failed: 0
-      }
-    };
-
-    // In production, this would call the tasks API or directly create in database
-    console.log('Plan execution started:', task);
+    // Create a task from the plan in DB
+    const created = await prisma.task.create({
+      data: {
+        planId: plan.id,
+        title: plan.title,
+        description: plan.description,
+        agents: Array.isArray(body.agents) && body.agents.length > 0 ? {
+          create: body.agents.map((a: any) => ({
+            name: a.name || 'Agent',
+            status: 'PENDING',
+            modelPreference: a.model_preference || 'gemini-2.5-flash',
+            specialization: Array.isArray(a.specialization) ? a.specialization : [],
+          })),
+        } : undefined,
+      },
+      include: { agents: true },
+    });
 
     return NextResponse.json({
-      task,
-      message: `Plan "${plan.name}" execution started`
+      task: {
+        task_id: created.id,
+        plan_id: created.planId,
+        title: created.title,
+        description: created.description || '',
+        status: created.status,
+        created_at: created.createdAt.toISOString(),
+        updated_at: created.updatedAt.toISOString(),
+        agents: created.agents.map((a) => ({
+          agent_id: a.id,
+          name: a.name,
+          status: a.status,
+          model_preference: a.modelPreference,
+          specialization: a.specialization,
+          created_at: a.createdAt.toISOString(),
+        })),
+        metrics: {
+          elapsed_time: created.elapsedTime,
+          estimated_cost: created.estimatedCost,
+          files_touched: created.filesTouched,
+          tests_passed: created.testsPassed,
+          tests_failed: created.testsFailed,
+        },
+      },
+      message: `Plan "${plan.title}" execution started`,
     }, { status: 201 });
   } catch (error) {
     console.error('Error executing plan:', error);

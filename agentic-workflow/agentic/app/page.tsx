@@ -60,9 +60,9 @@ export default function DashboardPage() {
             <Activity className="h-5 w-5 text-primary animate-pulse" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold winter-text">3</div>
+            <div className="text-3xl font-bold winter-text">0</div>
             <p className="text-xs text-muted-foreground uppercase tracking-wide">
-              +2 from yesterday
+              No activity yet
             </p>
           </CardContent>
         </Card>
@@ -73,9 +73,9 @@ export default function DashboardPage() {
             <Users className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold winter-text">7</div>
+            <div className="text-3xl font-bold winter-text">0</div>
             <p className="text-xs text-muted-foreground uppercase tracking-wide">
-              Across 3 missions
+              Across 0 missions
             </p>
           </CardContent>
         </Card>
@@ -86,9 +86,9 @@ export default function DashboardPage() {
             <DollarSign className="h-5 w-5 text-accent" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold winter-text">$12.50</div>
+            <div className="text-3xl font-bold winter-text">$0.00</div>
             <p className="text-xs text-muted-foreground uppercase tracking-wide">
-              -23% from yesterday
+              Metering disabled
             </p>
           </CardContent>
         </Card>

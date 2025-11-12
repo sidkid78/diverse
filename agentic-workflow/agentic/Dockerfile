@@ -12,7 +12,7 @@ RUN npm ci --only=production && \
     npm cache clean --force
 
 # Stage 2: Builder
-FROM node:22-alpine
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Copy package files
@@ -29,7 +29,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # Build the application
-RUN npm run build
+RUN npx prisma generate && npm run build
 
 # Stage 3: Runner (Production)
 FROM node:22-alpine

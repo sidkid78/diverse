@@ -4,7 +4,9 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { generateContent, generateContentStream } from '../gemini';
+import { generateContent, generateContentStream, estimateInputTokensAndCost } from '../gemini';
+import agentToolsManager from '@/lib/tools';
+import { FunctionCallingConfigMode } from '@google/genai';
 import type { Agent, EventLog, ModelPreference } from '@/types';
 
 export interface AgentConfig {
@@ -148,7 +150,119 @@ export class AgentOrchestrator {
     });
 
     try {
-      const result = await generateContent(agent.model_preference, prompt, systemInstruction);
+      // Estimate tokens and cost (input-only) before generation
+      const estimation = await estimateInputTokensAndCost(agent.model_preference, prompt, systemInstruction);
+      if (estimation.inputTokens > 0) {
+        this.emitEvent({
+          event_id: uuidv4(),
+          timestamp: new Date().toISOString(),
+          agent_id: agentId,
+          task_id: agent.task_id,
+          event_type: 'PLAN_UPDATE',
+          payload: {
+            input_tokens: estimation.inputTokens,
+            estimated_input_cost_usd: Number(estimation.estimatedInputCostUsd.toFixed(6)),
+          },
+        });
+      }
+
+      // Provide tool declarations to the model (prep for function calling)
+      const tools = agentToolsManager.getToolDeclarations?.(false) || [];
+      const allowedFunctionNames = tools
+        .flatMap((tool) => tool.functionDeclarations || [])
+        .map((fn) => fn.name);
+
+      const response = await generateContent(
+        agent.model_preference,
+        prompt,
+        systemInstruction,
+        tools.length
+          ? {
+              tools,
+              toolConfig: {
+                functionCallingConfig: {
+                  mode: FunctionCallingConfigMode.ANY,
+                  allowedFunctionNames,
+                },
+              },
+            }
+          : undefined
+      );
+
+      let result = response.text || '';
+
+      if (response.functionCalls && response.functionCalls.length > 0) {
+        for (const call of response.functionCalls) {
+          const argsEntries =
+            typeof call.args?.entries === 'function'
+              ? Array.from(call.args.entries())
+              : Object.entries(call.args || {});
+          const argsObj = Object.fromEntries(argsEntries);
+
+          this.emitEvent({
+            event_id: uuidv4(),
+            timestamp: new Date().toISOString(),
+            agent_id: agentId,
+            task_id: agent.task_id,
+            event_type: 'TOOL_CALL',
+            payload: {
+              tool_name: call.name,
+              args: argsObj,
+            },
+          });
+
+          try {
+            const toolResult = await agentToolsManager.executeTool(call.name, argsObj);
+
+            this.emitEvent({
+              event_id: uuidv4(),
+              timestamp: new Date().toISOString(),
+              agent_id: agentId,
+              task_id: agent.task_id,
+              event_type: 'PLAN_UPDATE',
+              payload: {
+                tool_name: call.name,
+                tool_result: toolResult,
+              },
+            });
+
+            result += `\n\n[Tool ${call.name} Result]\n${JSON.stringify(toolResult, null, 2)}`;
+          } catch (toolError) {
+            const message =
+              toolError instanceof Error ? toolError.message : String(toolError);
+
+            this.emitEvent({
+              event_id: uuidv4(),
+              timestamp: new Date().toISOString(),
+              agent_id: agentId,
+              task_id: agent.task_id,
+              event_type: 'ERROR',
+              payload: {
+                tool_name: call.name,
+                error: message,
+              },
+            });
+
+            result += `\n\n[Tool ${call.name} Error] ${message}`;
+          }
+        }
+      }
+
+      // Estimate output tokens/cost
+      const outEst = await estimateInputTokensAndCost(agent.model_preference, result);
+      if (outEst.inputTokens > 0) {
+        this.emitEvent({
+          event_id: uuidv4(),
+          timestamp: new Date().toISOString(),
+          agent_id: agentId,
+          task_id: agent.task_id,
+          event_type: 'PLAN_UPDATE',
+          payload: {
+            output_tokens: outEst.inputTokens,
+            estimated_output_cost_usd: Number(outEst.estimatedInputCostUsd.toFixed(6)),
+          },
+        });
+      }
 
       this.updateAgentStatus(agentId, 'SUCCESS', new Date().toISOString());
 

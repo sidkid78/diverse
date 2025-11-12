@@ -1,0 +1,111 @@
+// Prisma schema for Agentic Workflow
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum AgentStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+model Plan {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  steps       PlanStep[]
+  tasks       Task[]
+
+  @@index([createdAt])
+}
+
+model PlanStep {
+  id            String   @id @default(cuid())
+  planId        String
+  plan          Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  order         Int
+  instruction   String
+  assignedAgents String[] // text[] on PostgreSQL
+  contextFiles   String[] // text[] on PostgreSQL
+
+  createdAt     DateTime @default(now())
+
+  @@index([planId, order])
+}
+
+model Task {
+  id            String     @id @default(cuid())
+  planId        String?
+  plan          Plan?      @relation(fields: [planId], references: [id])
+
+  title         String
+  description   String?
+  status        TaskStatus @default(PENDING)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Metrics
+  elapsedTime    Int       @default(0)   // ms
+  estimatedCost  Int       @default(0)   // cents
+  filesTouched   Int       @default(0)
+  testsPassed    Int       @default(0)
+  testsFailed    Int       @default(0)
+
+  agents        Agent[]
+  eventLogs     EventLog[]
+
+  @@index([status, updatedAt])
+}
+
+model Agent {
+  id              String       @id @default(cuid())
+  taskId          String
+  task            Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  name            String
+  status         AgentStatus   @default(PENDING)
+  modelPreference String
+  specialization  String[]     // text[] on PostgreSQL
+
+  createdAt       DateTime     @default(now())
+  finishedAt      DateTime?
+
+  @@index([taskId, status])
+}
+
+model EventLog {
+  id         String   @id @default(cuid())
+
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  agentId    String?
+  timestamp  DateTime @default(now())
+  eventType  String
+  payload    Json
+
+  @@index([taskId, timestamp])
+  @@index([agentId])
+}
+
+// End of schema

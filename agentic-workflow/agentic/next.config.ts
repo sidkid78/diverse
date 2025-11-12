@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   /* config options here */
   output: 'standalone', // Enable standalone mode for Docker
   
+  // Pin root to this app to avoid lockfile root confusion
+  turbopack: {
+    root: __dirname,
+  },
+  
   // Optimize for production
   reactStrictMode: true,
   

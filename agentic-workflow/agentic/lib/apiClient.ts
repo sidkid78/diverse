@@ -169,6 +169,30 @@ class ApiClient {
     });
   }
 
+  // Generate AI-powered plan
+  async generatePlan(payload: {
+    mission_statement: string;
+    repo_url: string;
+    context_files?: string[];
+    model_preference?: string;
+  }) {
+    return this.request<{
+      plan: Array<{
+        step_description: string;
+        agent_name: string;
+        agent_specialization: string[];
+        model_preference: string;
+        estimated_duration: number;
+        dependencies: number[];
+      }>;
+      context_files: string[];
+      model_used: string;
+    }>('/plans/generate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
   // Server-Sent Events for task streaming
   createTaskStream(taskId: string): EventSource {
     const url = `${this.baseUrl}/api/tasks/${taskId}/stream`;

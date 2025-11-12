@@ -1,5 +1,7 @@
 // AI-powered plan generation utility
-// This simulates an AI service that generates plan steps based on mission goals
+// ⚠️ DEPRECATED: This file contains mock data for testing purposes only.
+// Use the real API endpoint: POST /api/plans/generate instead
+// This uses real Gemini AI to analyze your repository and generate plans
 
 interface GeneratedStep {
   instruction: string;

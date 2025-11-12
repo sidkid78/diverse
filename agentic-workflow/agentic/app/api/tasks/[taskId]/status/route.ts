@@ -34,11 +34,39 @@ export async function GET(
     // Get recent events for this task
     const events = eventLogger.getEventsByTask(taskId);
 
+    // Aggregate estimated costs (from emitted PLAN_UPDATE events)
+    const totals = events.reduce(
+      (acc, ev) => {
+        const p = ev.payload || {};
+        const inCost = typeof (p as any).estimated_input_cost_usd === 'number' ? (p as any).estimated_input_cost_usd : 0;
+        const outCost = typeof (p as any).estimated_output_cost_usd === 'number' ? (p as any).estimated_output_cost_usd : 0;
+        return {
+          estimated_input_cost_usd: acc.estimated_input_cost_usd + inCost,
+          estimated_output_cost_usd: acc.estimated_output_cost_usd + outCost,
+        };
+      },
+      { estimated_input_cost_usd: 0, estimated_output_cost_usd: 0 }
+    );
+    const estimated_total_cost_usd = Number((totals.estimated_input_cost_usd + totals.estimated_output_cost_usd).toFixed(6));
+
+    const taskWithCost = {
+      ...task,
+      metrics: {
+        ...task.metrics,
+        estimated_cost: Math.round(estimated_total_cost_usd * 100),
+      },
+    };
+
     return NextResponse.json({
-      task,
+      task: taskWithCost,
       agents,
       events: events.slice(-50), // Last 50 events
       event_count: events.length,
+      cost: {
+        estimated_input_cost_usd: Number(totals.estimated_input_cost_usd.toFixed(6)),
+        estimated_output_cost_usd: Number(totals.estimated_output_cost_usd.toFixed(6)),
+        estimated_total_cost_usd,
+      },
     });
 
   } catch (error) {

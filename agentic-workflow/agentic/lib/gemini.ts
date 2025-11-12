@@ -3,7 +3,7 @@
  * Provides type-safe access to Gemini models using the modern @google/genai SDK
  */
 
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, types } from '@google/genai';
 import type { ModelPreference } from '@/types';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
@@ -44,6 +44,17 @@ export const MODEL_CONFIGS = {
 } as const;
 
 /**
+ * Simple pricing per 1M tokens (USD) for estimation (input only)
+ * Source: representative values; adjust as needed.
+ */
+const MODEL_PRICING_PER_1M: Record<string, { input: number; output: number }> = {
+  'gemini-2.5-flash-lite': { input: 0.10, output: 0.40 },
+  'gemini-2.5-flash': { input: 0.30, output: 2.50 },
+  'gemini-2.5-pro': { input: 1.25, output: 10.0 },
+  'gemini-2.0-pro': { input: 0.10, output: 0.40 },
+};
+
+/**
  * Get the Gemini AI client
  */
 export function getClient() {
@@ -56,23 +67,50 @@ export function getClient() {
 
 
 /**
+ * Estimate token usage and cost for a prompt (input-side only).
+ */
+export async function estimateInputTokensAndCost(
+  model: ModelPreference,
+  prompt: string,
+  systemInstruction?: string
+): Promise<{ inputTokens: number; estimatedInputCostUsd: number }> {
+  const client = getClient();
+  const mergedText = systemInstruction ? `${systemInstruction}\n\n${prompt}` : prompt;
+
+  try {
+    const resp = await client.models.countTokens({
+      model,
+      contents: mergedText,
+    });
+    const inputTokens = resp.totalTokens ?? 0;
+    const pricing = MODEL_PRICING_PER_1M[model] ?? { input: 0.3, output: 2.5 };
+    const estimatedInputCostUsd = (inputTokens / 1_000_000) * pricing.input;
+    return { inputTokens, estimatedInputCostUsd };
+  } catch {
+    // Fallback if token counting fails
+    return { inputTokens: 0, estimatedInputCostUsd: 0 };
+  }
+}
+
+
+/**
  * Generate content with streaming support
  */
 export async function* generateContentStream(
   model: ModelPreference,
   prompt: string,
-  systemInstruction?: string
+  systemInstruction?: string,
+  additionalConfig?: Record<string, unknown>
 ): AsyncGenerator<string> {
   const client = getClient();
 
   try {
     const baseConfig = MODEL_CONFIGS[model];
-    const config = systemInstruction
-      ? {
-          ...baseConfig,
-          systemInstruction,
-        }
-      : baseConfig;
+    const config = {
+      ...baseConfig,
+      ...(systemInstruction ? { systemInstruction } : {}),
+      ...(additionalConfig || {}),
+    };
 
     const response = await client.models.generateContent({
       model,
@@ -97,18 +135,18 @@ export async function* generateContentStream(
 export async function generateContent(
   model: ModelPreference,
   prompt: string,
-  systemInstruction?: string
-): Promise<string> {
+  systemInstruction?: string,
+  additionalConfig?: Record<string, unknown>
+): Promise<types.GenerateContentResponse> {
   const client = getClient();
 
   try {
     const baseConfig = MODEL_CONFIGS[model];
-    const config = systemInstruction
-      ? {
-          ...baseConfig,
-          systemInstruction,
-        }
-      : baseConfig;
+    const config = {
+      ...baseConfig,
+      ...(systemInstruction ? { systemInstruction } : {}),
+      ...(additionalConfig || {}),
+    };
 
     const response = await client.models.generateContent({
       model,
@@ -116,7 +154,7 @@ export async function generateContent(
       config,
     });
 
-    return response.text || '';
+    return response;
   } catch (error) {
     console.error('Gemini generation error:', error);
     throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`);
